@@ -10,6 +10,7 @@ import type { AskQuestion, AskScreen } from '../lib/ask-user.js'
 import { useChat } from '../stores/chat.js'
 import { useConnection } from '../stores/connection.js'
 import { gatewayFor } from '../lib/agent-gateway.js'
+import { shouldAutofocusComposer } from '../lib/composer-autofocus.js'
 import { uuidv4 } from '../lib/uuid.js'
 import { cn } from '../lib/utils.js'
 import {
@@ -129,29 +130,20 @@ export function Composer(props: {
 
   // Autofocus the composer on landing in a conversation and when switching to
   // another (the session subtree remounts per session, so a new/opened chat
-  // hits this too) — type immediately, no click first. The textarea is
-  // disabled while the socket reconnects, so wait for `connected`; the ref
-  // latches once per session (sessionId is fixed within a mount) so a later
-  // reconnect can't steal focus mid-scroll.
-  //
-  // Two guards keep the steal from hurting:
-  //  1. Only take focus when nothing else owns it. `connected` flips true a
-  //     beat after the page renders, and in that window the drawer is
-  //     interactive: an inline rename input commits on blur (a steal would
-  //     save a half-typed name), the filter input, a dialog focus trap, an
-  //     in-progress transcript selection, and a terminal a legacy row is still
-  //     showing before it flips to Chat must all be left alone.
-  //  2. Skip on coarse-pointer (touch). Programmatic focus is NOT suppressed on
-  //     Android Chrome/WebView (only iOS Safari), so on a tap that remounts the
-  //     composer the keyboard would rise over the transcript — don't. A real
-  //     tap on the textarea still focuses it. The latch is set only after a
-  //     real focus() so a skipped/no-op attempt isn't latched forever.
+  // hits this too) — type immediately, no click first. The decision and its
+  // two guards (don't steal focus, skip touch) live in `shouldAutofocusComposer`;
+  // the latch is set only after a real focus() so a skipped attempt can retry.
   const autoFocusedFor = useRef<string | undefined>(undefined)
   useEffect(() => {
-    if (!connected || autoFocusedFor.current === props.sessionId) return
-    if (typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches) return
     const active = document.activeElement
-    if (active && active !== document.body) return
+    const ok = shouldAutofocusComposer({
+      connected,
+      alreadyFocusedForSession: autoFocusedFor.current === props.sessionId,
+      coarsePointer:
+        typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches,
+      otherElementHasFocus: !!active && active !== document.body,
+    })
+    if (!ok) return
     const ta = taRef.current
     if (!ta) return
     ta.focus()
