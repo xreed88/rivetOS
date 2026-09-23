@@ -2,15 +2,17 @@
 
 **Status:** ready to implement. Design is locked (see "Decisions"); no open blockers.
 Revised 2026-09-23 after review — see "Revision log" at the end.
-**Before starting:** rebase this branch onto current `main`. It was cut from `4b6eb6a9`, and
-later commits (`d675c2ae`, `a22891e8`) touch `pages/chat.tsx` — resolve those first.
+**Before starting:** this branch holds only the plan and sits on upstream `main`; rebase if
+`main` has moved. Step 4 edits `pages/chat.tsx`, as does the separate `fix/chat-waiting-indicator`
+PR. If that PR has landed upstream, the rebase picks it up. If it hasn't, expect a small
+conflict in `chat.tsx` near `<Composer>` later.
 
 **Picking this up cold (any machine, any agent):** this file is the whole brief — no chat
 history or memory needed.
 ```bash
 git clone https://github.com/xreed88/rivetOS && cd rivetOS   # or: git fetch origin in an existing clone
 git remote add upstream https://github.com/philbert440/rivetOS 2>/dev/null; git fetch upstream
-git checkout docs/model-picker-declutter-plan
+git checkout docs/model-picker-plan
 git rebase upstream/main          # see "Before starting" above
 npm ci
 cd apps/rivethub-web && npm test  # baseline should be green before you change anything
