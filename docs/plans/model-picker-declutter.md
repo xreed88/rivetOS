@@ -1,6 +1,9 @@
 # Plan: per-turn model picker declutter (client-side)
 
 **Status:** ready to implement. Design is locked (see "Decisions"); no open blockers.
+Revised 2026-09-23 after review — see "Revision log" at the end.
+**Before starting:** rebase this branch onto current `main`. It was cut from `4b6eb6a9`, and
+later commits (`d675c2ae`, `a22891e8`) touch `pages/chat.tsx` — resolve those first.
 **Scope:** `apps/rivethub-web` only. **No backend / no `model-sheets.ts` / no den-server changes.**
 **Author convention for this repo:** commit as the fork owner **xreed88 `<xreed88@gmail.com>`**
 (`git commit --author='xreed88 <xreed88@gmail.com>'`). This is a fork of
@@ -35,6 +38,9 @@ curate the *view*. No popularity ranking (there's no data for it on a local FTS-
 6. **Pinned wins over Recent:** a model that is both shows only under Pinned.
 7. **The `''` "Session default (…)" row is first-class:** always at the top of the unsearched
    view, never subject to pin/collapse.
+8. **Pin order = order pinned:** new pins append to the end of the Pinned zone.
+9. **The current pick is never hidden:** if it would fall behind "N more", it is promoted to
+   the end of the inline All slice.
 
 ---
 
@@ -77,9 +83,10 @@ harness/effort pickers, `conversation-model-options.ts` (its output shape is the
 - `chat.tsx`: `nativeHarnessId` (a `HarnessId | undefined`) is in scope where `turnOptions`
   is computed (`const turnOptions = conversationModelOptions(nativeHarnessId, ...)`), and again
   where `<Composer>` is rendered with `onTurnPick`. **This is the key for model-prefs.**
-- Persist pattern to copy: `stores/chat-settings.ts` — zustand `persist` with a custom
-  `PersistStorage` wrapping `localStorage` in try/catch (storage full/disabled → keep in-memory,
-  lose persistence). Reuse this exact shape.
+- Persist pattern to copy: `stores/sidebar-prefs.ts` — zustand `persist` with
+  `createJSONStorage(() => localStorage)`. Do **not** copy `chat-settings.ts`'s custom
+  `PersistStorage`; that exists only to read a legacy on-disk format, which this new store
+  doesn't have.
 - Popover primitives: `components/ui/popover.tsx` (`Popover`, `PopoverTrigger`,
   `PopoverContent`, `PopoverHeader`, `PopoverTitle`). Trigger/`Button` styling: copy
   `components/pickers/model-picker.tsx` (the harness picker) — same visual language, `Cpu`
@@ -90,28 +97,34 @@ harness/effort pickers, `conversation-model-options.ts` (its output shape is the
 
 ## Step 1 — `stores/model-prefs.ts`
 
-Zustand store, persisted to `localStorage` key `rivethub.modelPrefs`, mirroring
-`chat-settings.ts`'s custom `PersistStorage` (try/catch on every read/write).
+Zustand store, persisted to `localStorage` key `rivethub.modelPrefs` via
+`createJSONStorage(() => localStorage)`, like `sidebar-prefs.ts`.
 
 ```ts
-export interface ModelPrefs {
-  /** harnessId -> pinned model ids, in user order (most-recent pin last or first — pick one, test it) */
+export const RECENT_CAP = 5
+/** Shared empty list — selectors must return this, never a fresh `[]` (see below). */
+export const NO_IDS: readonly string[] = Object.freeze([])
+
+interface ModelPrefsState {
+  /** harnessId -> pinned model ids, in pin order (new pins append) */
   pinned: Record<string, string[]>
   /** harnessId -> recent model ids, MRU-first, capped */
   recent: Record<string, string[]>
-}
-
-export const RECENT_CAP = 5
-
-interface ModelPrefsState {
-  prefs: ModelPrefs
-  isPinned: (harnessId: string, modelId: string) => boolean
   togglePin: (harnessId: string, modelId: string) => void
   recordRecent: (harnessId: string, modelId: string) => void
-  pinnedFor: (harnessId: string) => string[]
-  recentFor: (harnessId: string) => string[]
 }
 ```
+
+State is plain data plus two actions. There are deliberately no getter functions such as
+`pinnedFor()`: a component that calls a getter from the store doesn't re-render when pins
+change. Components select the data directly:
+
+```ts
+const pinnedIds = useModelPrefs((s) => (harnessId && s.pinned[harnessId]) || NO_IDS)
+```
+
+**Always fall back to the shared `NO_IDS`.** A selector returning `?? []` makes a new array on
+every render, and zustand v5 treats that as a change and loops forever.
 
 Rules:
 - `togglePin`: add/remove `modelId` in `pinned[harnessId]`; create the array if absent; prune
@@ -119,7 +132,6 @@ Rules:
 - `recordRecent`: unshift `modelId`, dedupe, slice to `RECENT_CAP`. **Ignore `''`** (the default
   row is not a "recent model").
 - All array ops immutable (return new objects) so zustand subscribers re-render.
-- Selectors (`pinnedFor`/`recentFor`) return `[]` for an unknown harness.
 
 Export pure helpers so tests don't need the hook:
 ```ts
@@ -143,8 +155,7 @@ export interface PickerView {
   allInline: PickerRow[]      // first TAIL_INLINE of the remainder
   allRest: PickerRow[]        // the rest (behind "N more")
   // when searching:
-  matches: PickerRow[]        // flat, ranked
-  matchTotal: number          // = options.length
+  matches: PickerRow[]        // flat, ranked (footer total is just options.length)
   isEmpty: boolean            // no pins AND no recents (drives the first-run hint)
 }
 
@@ -165,9 +176,11 @@ Rules to implement + test here:
 - Precedence: an id in `pinned` never appears in `recent` or `all`; an id in `recent` never in
   `all`. `''` is never in any zone.
 - `allInline = remainder.slice(0, TAIL_INLINE)`, `allRest = remainder.slice(TAIL_INLINE)`.
+- If the current pick (`value`) would land in `allRest`, move it to the end of `allInline`
+  so the active row is always visible.
 - Search (`query.trim() !== ''`): case-insensitive; rank prefix-of-label, then prefix-of-id,
-  then substring; stable within a rank. `matches` spans the whole catalog (pins included),
-  `matchTotal = options.length`.
+  then substring; stable within a rank. `matches` spans the whole catalog (pins included).
+  **This is the only definition of search ranking** — the component does not re-implement it.
 - `isEmpty = pinned.length === 0 && recent.length === 0`.
 
 ## Step 2b — `components/pickers/turn-model-picker.tsx`
@@ -184,36 +197,39 @@ export function TurnModelPicker(props: {
 }): JSX.Element
 ```
 
-Holds only React state (`open`, `query`, `showAll`) + store hooks; derives everything else by
-calling `buildPickerView({ options, value, defaultLabel, pinnedIds: pinnedFor(harnessId),
-recentIds: recentFor(harnessId), query })`. No zone/filter logic inline.
+Holds only React state (`open`, `query`, `showAll`, `highlight`) + store hooks (selected as in
+Step 1, falling back to `NO_IDS`). Everything else comes from `buildPickerView(...)`; the
+component contains **no zone, filter, or ranking logic** — it renders the view it's given.
 
-Internal layout (see mock at bottom):
+Rendering (see mock at bottom):
 
 1. **Trigger** — ghost `Button` like `model-picker.tsx`; label = current option's label, or
-   `defaultLabel` when `value === ''`. `Cpu` + `ChevronDown`.
-2. **Popover body** with `PopoverHeader` "Model for next turn" and a **search input** (`Search`
-   icon, controlled `query` state, `X` to clear).
-3. **When `query` is empty** — sectioned:
-   - **Session default row** (`value===''`) always first, with `Check` if active.
-   - **★ Pinned** — `pinnedFor(harnessId)` mapped to options (skip ids not in `options`).
-   - **◷ Recent** — `recentFor(harnessId)` minus pinned ids, minus `''`.
-   - **All** — the remaining options (options minus pinned minus recent), showing the first
-     `TAIL_INLINE` (=4) inline, rest behind a `── N more ▾ ──` toggle (`showAll` state).
-   - Each model row: label (truncate) + a right-aligned **★/☆ pin toggle** (filled if pinned).
-     Clicking the star calls `togglePin(harnessId, id)` and does **not** close the popover;
-     clicking the row label calls `onChange(id)` + closes.
-4. **When `query` is non-empty** — flat, ranked (simple: case-insensitive substring on label
-   then id; prefix matches before mid-string). Show a `"{n} of {total} models"` footer. Pin
-   stars still shown. No zone headers.
-5. If `harnessId` is undefined → render only the default row + a flat "All" list with search,
-   no pin stars, no Pinned/Recent zones. (Graceful — pins need a key.)
+   `defaultLabel` when `value === ''`. `Cpu` + `ChevronDown`. Keep the old `Select`'s `title`
+   tooltip (`Model: <label>`).
+2. **Popover body** — `PopoverHeader` "Model for next turn" and a **search input** (`Search`
+   icon, controlled `query`, `X` to clear) that is focused when the popover opens.
+3. **Not searching** — default row, then zone headers ★ Pinned / ◷ Recent / All for the
+   non-empty zones in the view, then a `── N more ▾ ──` toggle for `allRest` (`showAll`), then
+   the first-run hint when `isEmpty`.
+4. **Searching** — `matches` flat with no headers, and a `"{matches.length} of
+   {options.length} models"` footer.
+5. **`harnessId` undefined** — pass empty pins/recents and hide the stars. (Pins need a key.)
 
-Constants: `TAIL_INLINE = 4`. Keep them exported for the test.
+**Row markup:** each model row is a `div` holding **two sibling buttons** — the label button
+(`onChange(id)` + close) and the ★/☆ star button (`togglePin(harnessId, id)`, popover stays
+open, `aria-label={`${pinned ? 'Unpin' : 'Pin'} ${label}`}`). Don't put the star button
+inside the row button; a button inside a button is invalid HTML, and browsers and screen
+readers handle it unpredictably.
 
-Accessibility: mirror `model-picker.tsx` (`aria-label` on trigger, buttons for rows). Star is
-a nested `<button>` with its own `aria-label={pinned ? 'Unpin' : 'Pin'} ${label}`; stop click
-propagation so it doesn't trigger the row select.
+**Keyboard:**
+- Focus stays in the search input.
+- ↑/↓ move a highlight through the visible rows, including the default row, and skip the
+  "N more" toggle.
+- Enter selects the highlighted row; while searching, the highlight starts on the top match.
+- Esc clears a non-empty query first, then closes the popover.
+- Tab reaches the star buttons.
+
+Accessibility otherwise mirrors `model-picker.tsx` (`aria-label` on the trigger).
 
 ## Step 3 — wire into `composer.tsx`
 
@@ -279,15 +295,17 @@ propagation so it doesn't trigger the row select.
 - Unknown pinned/recent ids (not in `options`) are dropped.
 - `isEmpty` true iff no pins and no recents.
 - Search: ranks prefix-label > prefix-id > substring; `matches` spans whole catalog;
-  `matchTotal === options.length`; empty query → `searching: false`.
+  empty query → `searching: false`.
 - `defaultRow.active` true iff `value === ''`.
+- A current pick that would fall into `allRest` is promoted to the end of `allInline`.
 
 **`model-prefs.test.ts`** — store + exported pure helpers:
-- `computeToggle` adds then removes; `computeRecent` unshift/dedupe/cap at `RECENT_CAP`.
+- `computeToggle` appends then removes (pin order preserved); `computeRecent`
+  unshift/dedupe/cap at `RECENT_CAP`.
 - `togglePin` creates/prunes the harness array; `recordRecent` ignores `''`.
 - Two harnesses keep independent pins/recents.
-- Persist round-trip via a mocked `localStorage` (see `chat-settings.ts` storage shape); corrupt
-  or absent value → store initializes empty (try/catch), never throws.
+- No persistence tests. The store uses zustand's standard `createJSONStorage`, and there's no
+  custom storage code of ours to test.
 
 **Component (`.tsx`)** is a thin renderer over the tested view — no test file (the repo has no
 DOM test harness and this plan does not add one). If DOM coverage is later wanted, that's a
@@ -355,3 +373,30 @@ and the effort picker beside it is unchanged.
 ● = current pick   ✓ = default row                  └────────────────────────────────────┘
 ★ = pinned         ☆ = click to pin
 ```
+
+---
+
+## Revision log
+
+**2026-09-23 — review pass (fixes + simplifications)**
+
+Fixes:
+- Search ranking was specified twice with different rules (Step 2a vs 2b). 2a is now the
+  only definition; 2b just renders.
+- Store getters (`pinnedFor`/`recentFor`/`isPinned`) removed. Getter calls don't make the
+  component re-render when pins change. Components now select data directly and fall back to
+  the shared `NO_IDS` constant; a fresh `[]` in a selector makes zustand v5 loop forever.
+- Star toggle moved out of the row button (a button inside a button is invalid HTML). Rows
+  are now a `div` holding two sibling buttons.
+- Added keyboard spec (autofocus search, ↑/↓, Enter, Esc, Tab to stars).
+- Current pick can no longer be hidden behind "N more" (Decision 9).
+- Pin order decided: append (Decision 8).
+- Added "rebase onto `main` first" — later commits touch `chat.tsx`.
+- Kept the old `Select`'s `title` tooltip on the new trigger.
+
+Simplifications:
+- Persist via `createJSONStorage` (the `sidebar-prefs.ts` pattern), not `chat-settings.ts`'s
+  custom storage, which only exists for a legacy format. The persistence tests are removed
+  with it.
+- Store state is just `pinned`, `recent`, `togglePin`, `recordRecent` (no nested `prefs`).
+- Dropped `matchTotal` (always `options.length`).
