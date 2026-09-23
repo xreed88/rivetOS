@@ -74,6 +74,7 @@ import { useConnection } from '../stores/connection.js'
 import { NotConnected, useGatewayReady } from '../components/not-connected.js'
 import { lastActiveFor, useChat, type LiveToolEntry, type OutboundItem } from '../stores/chat.js'
 import { useChatSettings } from '../stores/chat-settings.js'
+import { useModelPrefs } from '../stores/model-prefs.js'
 import { Transcript } from '../components/transcript.js'
 import { QueuedStrip } from '../components/queued-strip.js'
 import { Composer, type ComposerHandle } from '../components/composer.js'
@@ -1838,10 +1839,14 @@ function ActiveSession(props: {
           <Composer
             nativeControls={turnOptions.models.length > 0}
             turnOptions={turnOptions}
+            harnessId={nativeHarnessId}
             onTurnPick={
               nativeHarnessId
-                ? (pick) =>
+                ? (pick) => {
+                    if (pick.model)
+                      useModelPrefs.getState().recordRecent(nativeHarnessId, pick.model)
                     setSetting(settingsKey, { turnPick: { harnessId: nativeHarnessId, ...pick } })
+                  }
                 : undefined
             }
             sessionId={props.sessionId}

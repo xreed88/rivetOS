@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type JSX, type RefObject } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowUp, Mic, Paperclip, Volume2, VolumeX, X } from 'lucide-react'
-import type { CatalogAgent, ThinkingLevel } from '@rivetos/types'
+import type { CatalogAgent, HarnessId, ThinkingLevel } from '@rivetos/types'
 import { Select, type SelectOption } from './select.js'
 import type { conversationModelOptions } from '../lib/conversation-model-options.js'
 import type { WsStatus } from '../stores/chat.js'
@@ -32,6 +32,7 @@ import {
 import { Textarea } from './ui/textarea.js'
 import { EffortPicker } from './pickers/effort-picker.js'
 import { ModelPicker } from './pickers/model-picker.js'
+import { TurnModelPicker } from './pickers/turn-model-picker.js'
 import { NodePicker } from './pickers/node-picker.js'
 import { AskUserCard, type AskStructuredAnswer } from './ask-user-card.js'
 
@@ -66,6 +67,7 @@ export function Composer(props: {
   nativeControls?: boolean
   turnOptions?: ReturnType<typeof conversationModelOptions>
   onTurnPick?: (pick: { model?: string; effort?: string }) => void
+  harnessId?: HarnessId
   wsStatus: WsStatus
   settingsKey: string
   agent?: string
@@ -488,21 +490,17 @@ export function Composer(props: {
             <EffortPicker value={props.effort} onChange={(v) => props.onSetting({ effort: v })} />
           )}
           {!!props.turnOptions?.models.length && (
-            <Select
+            <TurnModelPicker
               value={props.turnOptions.effective.model ?? ''}
-              options={[
-                { value: '', label: props.turnOptions.defaultModelLabel },
-                ...props.turnOptions.models,
-              ]}
+              options={props.turnOptions.models}
+              defaultLabel={props.turnOptions.defaultModelLabel}
+              harnessId={props.harnessId}
               onChange={(model) =>
                 props.onTurnPick?.({
                   model: model || undefined,
                   effort: props.turnOptions?.effective.effort,
                 })
               }
-              label="Model for next turn"
-              title={`Model: ${props.turnOptions.models.find((m) => m.value === props.turnOptions?.effective.model)?.label ?? props.turnOptions.defaultModelLabel}`}
-              aria-label="Model for next turn"
               className="max-w-[12rem] min-w-0 rounded-full"
             />
           )}
