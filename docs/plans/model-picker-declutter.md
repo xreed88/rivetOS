@@ -4,6 +4,19 @@
 Revised 2026-09-23 after review — see "Revision log" at the end.
 **Before starting:** rebase this branch onto current `main`. It was cut from `4b6eb6a9`, and
 later commits (`d675c2ae`, `a22891e8`) touch `pages/chat.tsx` — resolve those first.
+
+**Picking this up cold (any machine, any agent):** this file is the whole brief — no chat
+history or memory needed.
+```bash
+git clone https://github.com/xreed88/rivetOS && cd rivetOS   # or: git fetch origin in an existing clone
+git remote add upstream https://github.com/philbert440/rivetOS 2>/dev/null; git fetch upstream
+git checkout docs/model-picker-declutter-plan
+git rebase upstream/main          # see "Before starting" above
+npm ci
+cd apps/rivethub-web && npm test  # baseline should be green before you change anything
+```
+Then work Steps 1 → 4 in order, run "Verification", and commit per the author convention
+below. Rename the branch to `feat/turn-model-picker` if you like; the plan commit can ride along.
 **Scope:** `apps/rivethub-web` only. **No backend / no `model-sheets.ts` / no den-server changes.**
 **Author convention for this repo:** commit as the fork owner **xreed88 `<xreed88@gmail.com>`**
 (`git commit --author='xreed88 <xreed88@gmail.com>'`). This is a fork of
