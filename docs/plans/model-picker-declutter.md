@@ -1,6 +1,22 @@
 # Plan: per-turn model picker declutter (client-side)
 
-**Status:** ready to implement. Design is locked (see "Decisions"); no open blockers.
+**Status (2026-09-23): implemented, parked.** The implementation is on branch
+`feat/turn-model-picker` (`fb35902d`, on the fork, not PR'd). All steps are done and all tests
+pass. It's also running on the live node, where it has no visible effect.
+
+> **Scope gap found after implementing:** the per-turn menu this plan replaces only exists
+> for **codex**, the one harness whose driver declares `turnOptions`. For claude, opencode,
+> pi and the rest, the model is picked **at launch**, which is upstream PR #822 (spawn-time
+> model selection, #814). #822 adds a second, flat `<Select>` for that. So as built, the
+> picker only helps codex users, and it couldn't be tested here without a codex
+> subscription. The plan's premise ("big catalogs like opencode's are unusable") is really
+> about the launch menu.
+>
+> **Next, once #822 lands:** rebase `feat/turn-model-picker` onto `main` and render
+> `TurnModelPicker` for #822's launch-model `<Select>` too. The component is generic:
+> `options`/`value`/`onChange`/`harnessId`, keyed by harness, so launch and per-turn picks
+> share pins and recents. Test with claude and opencode, then open one PR covering both
+> menus.
 Revised 2026-09-23 after review — see "Revision log" at the end.
 **Before starting:** this branch holds only the plan and sits on upstream `main`; rebase if
 `main` has moved. Step 4 edits `pages/chat.tsx`, as does the separate `fix/chat-waiting-indicator`
