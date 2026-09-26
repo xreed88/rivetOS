@@ -14,6 +14,7 @@ https://claude.ai/artifact/D4FaRKwGZqFQAtTt4u63Qx
 | `Colorways.dc.html`    | Logos in green, orange and red                                  |
 | `Weave.dc.html`        | Three "weave" variations of the Tile logo                       |
 | `WeaveOmarchy.dc.html` | The weave logos redrawn in Omarchy's style                      |
+| `AllLogos.dc.html`     | All nine logos side by side, 1920 px wide                       |
 | `render.cjs`           | Turns the artboards into the static HTML and PNGs one folder up |
 
 Each `.dc.html` is a Design Component: normal HTML, plus `{{holes}}` filled

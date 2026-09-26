@@ -19,6 +19,7 @@ const jobs=[
  ['Weave.dc.html','logos/logos-weave-green',{accent:'#34d399'},960],
  ['WeaveOmarchy.dc.html','logos/logos-weave-omarchy',{},960],
  ['WeaveOmarchy.dc.html','logos/logos-weave-omarchy-gruvbox',{ink:'#ebdbb2',accent:'#fabd2f'},960],
+ ['AllLogos.dc.html','logos/all-logos',{},1160,1920],
 ];
 function get(o,p){return p.split('.').reduce((a,k)=>a==null?a:a[k],o)}
 function build(src,props){
@@ -35,8 +36,8 @@ function build(src,props){
 (async()=>{
   const b=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||undefined});
   const pg=await b.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
-  for(const [f,name,props,h] of jobs){
-    await pg.setViewportSize({width:1440,height:h||900});
+  for(const [f,name,props,h,w] of jobs){
+    await pg.setViewportSize({width:w||1440,height:h||900});
     const html=build(fs.readFileSync(path.join(dir,f),'utf8'),props);
     fs.writeFileSync(path.join(out,name+'.html'),html);
     await pg.setContent(html,{waitUntil:'load',timeout:8000}).catch(()=>{});
