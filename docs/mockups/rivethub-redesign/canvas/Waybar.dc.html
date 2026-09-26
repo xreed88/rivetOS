@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RivetHub — Bar-first</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&amp;family=Fira+Code:wght@400;500;700&amp;family=IBM+Plex+Mono:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; display: flex; flex-direction: column; background: {{t.bg}}; color: {{t.ink}}; font-family: {{font}}; font-size: 13.5px; line-height: 1.6">
+
+<!-- top bar replaces the sidebar -->
+<header style="height: 48px; flex-shrink: 0; display: flex; align-items: center; gap: 24px; padding: 0 20px; background: {{t.panel}}; border-bottom: 1px solid {{t.line}}">
+<div style="font-weight: 700; font-size: 15px; letter-spacing: 0.5px"><span style="color: {{t.accent}}">rivet</span><span style="color: {{t.dim}}">::</span>hub</div>
+<nav aria-label="Main" style="display: flex; gap: 4px; height: 100%">
+<a href="#" aria-current="page" style="display: flex; align-items: center; padding: 0 12px; text-decoration: none; color: {{t.ink}}; border-bottom: 2px solid {{t.accent}}; font-weight: 700">chat</a>
+<a href="#" style="display: flex; align-items: center; padding: 0 12px; text-decoration: none; color: {{t.dim}}; border-bottom: 2px solid transparent">sessions</a>
+<a href="#" style="display: flex; align-items: center; padding: 0 12px; text-decoration: none; color: {{t.dim}}; border-bottom: 2px solid transparent">memory</a>
+<a href="#" style="display: flex; align-items: center; padding: 0 12px; text-decoration: none; color: {{t.dim}}; border-bottom: 2px solid transparent">files</a>
+<a href="#" style="display: flex; align-items: center; gap: 6px; padding: 0 12px; text-decoration: none; color: {{t.dim}}; border-bottom: 2px solid transparent">tasks<span style="padding: 0 6px; background: {{t.red}}; color: {{t.bg}}; font-size: 11px; font-weight: 700; line-height: 18px">2</span></a>
+<a href="#" style="display: flex; align-items: center; padding: 0 12px; text-decoration: none; color: {{t.dim}}; border-bottom: 2px solid transparent">workflows</a>
+</nav>
+<label for="bar-launch" class="sr">Search sessions, memory and commands</label>
+<div style="margin-left: auto; display: flex; align-items: center; gap: 10px; width: 360px; padding: 6px 12px; background: {{t.bg}}; border: 1px solid {{t.line}}">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: {{t.dim}}" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+<input id="bar-launch" placeholder="search sessions, memory, commands" style="flex-grow: 1; border: 0; outline: none; background: transparent; color: {{t.ink}}; font-size: 12.5px">
+<span style="font-size: 11px; color: {{t.dim}}; border: 1px solid {{t.line}}; padding: 0 5px">super space</span>
+</div>
+<button type="button" aria-label="Settings" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 1px solid {{t.line}}; background: transparent; color: {{t.dim}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg></button>
+</header>
+
+<div style="flex-grow: 1; min-height: 0; display: flex">
+
+<!-- conversation list -->
+<aside aria-label="Conversations" style="width: 300px; flex-shrink: 0; display: flex; flex-direction: column; border-right: 1px solid {{t.line}}; background: {{t.panel}}">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 10px">
+<span style="font-size: 11px; color: {{t.dim}}; text-transform: uppercase; letter-spacing: 1.5px">conversations</span>
+<button type="button" style="border: 1px solid {{t.line}}; background: transparent; color: {{t.accent}}; padding: 2px 10px; font-size: 12px">+ new</button>
+</div>
+<div style="padding: 6px 18px; font-size: 11px; color: {{t.dim}}">rivet · claude-code</div>
+<a href="#" style="display: block; padding: 10px 18px; text-decoration: none; background: {{t.panel2}}"><div style="font-weight: 700; color: {{t.ink}}">compaction-stall</div><div style="font-size: 12px; color: {{t.dim}}">Want me to open a PR with this fix?</div></a>
+<a href="#" style="display: block; padding: 10px 18px; text-decoration: none"><div>android-pairing-flow</div><div style="font-size: 12px; color: {{t.dim}}">QR handshake works on Pixel 8</div></a>
+<a href="#" style="display: block; padding: 10px 18px; text-decoration: none"><div>den-server tls rotation</div><div style="font-size: 12px; color: {{t.dim}}">Certs renew 30 days out now</div></a>
+<div style="padding: 14px 18px 6px; font-size: 11px; color: {{t.dim}}">forge · opencode</div>
+<a href="#" style="display: block; padding: 10px 18px; text-decoration: none"><div>rebuild rivethub-web <span style="color: {{t.orange}}">◐</span></div><div style="font-size: 12px; color: {{t.dim}}">nx run-many -t build</div></a>
+<a href="#" style="display: block; padding: 10px 18px; text-decoration: none"><div>lockfile sync</div><div style="font-size: 12px; color: {{t.dim}}">devalue 5.8.0 → 5.8.1</div></a>
+</aside>
+
+<!-- transcript, centered reading column -->
+<main style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column">
+<div style="flex-grow: 1; min-height: 0; overflow: hidden; display: flex; justify-content: center; padding: 32px 40px 0">
+<div style="width: 100%; max-width: 780px; display: flex; flex-direction: column; gap: 28px">
+
+<div style="align-self: flex-end; max-width: 560px; padding: 12px 16px; background: {{t.panel2}}; border: 1px solid {{t.line}}">The compaction worker stopped summarizing around 3am. Can you find out why and whether we lost anything?</div>
+
+<div>
+<div style="display: flex; align-items: baseline; gap: 10px; font-size: 12px"><span style="color: {{t.accent}}; font-weight: 700">rivet</span><span style="color: {{t.dim}}">opus · high · 14:31</span></div>
+<div style="margin-top: 10px; font-size: 12px; color: {{t.dim}}">
+<div><span style="color: {{t.green}}">✓</span> memory_search <span style="color: {{t.ink}}">"compaction worker stall"</span> — 12 hits</div>
+<div><span style="color: {{t.green}}">✓</span> shell <span style="color: {{t.ink}}">journalctl -u compaction-worker --since 02:30</span></div>
+</div>
+<h2 style="margin: 16px 0 6px; font-size: 15px; font-weight: 700; color: {{t.ink}}">What happened</h2>
+<p style="margin: 0">The worker hit a lock timeout on <code style="color: {{t.magenta}}">messages_summary_lock</code> at 02:58 and never retried — the backoff loop exits after its first failure.</p>
+<h2 style="margin: 16px 0 6px; font-size: 15px; font-weight: 700; color: {{t.ink}}">Did we lose anything?</h2>
+<p style="margin: 0">No. The 412 unsummarized rows are still eligible and will be picked up on the next run.</p>
+<pre style="margin: 14px 0 0; padding: 14px 16px; background: {{t.panel}}; border: 1px solid {{t.line}}; font-family: inherit; font-size: 12.5px; line-height: 1.7; overflow: hidden"><span style="color: {{t.dim}}">// services/compaction-worker/src/loop.ts</span>
+<span style="color: {{t.red}}">-  if (err) return</span>
+<span style="color: {{t.green}}">+  if (err) { await backoff(attempt++); continue }</span></pre>
+<div style="display: flex; gap: 8px; margin-top: 14px">
+<button type="button" style="min-height: 34px; padding: 4px 14px; border: 0; background: {{t.accent}}; color: {{t.bg}}; font-weight: 700">open PR</button>
+<button type="button" style="min-height: 34px; padding: 4px 14px; border: 1px solid {{t.line}}; background: transparent; color: {{t.ink}}">show full diff</button>
+</div>
+</div>
+</div>
+</div>
+
+<form style="padding: 16px 40px 18px; display: flex; justify-content: center">
+<div style="width: 100%; max-width: 780px; border: 1px solid {{t.accent}}; background: {{t.panel}}">
+<label for="bar-composer" class="sr">Message rivet</label>
+<textarea id="bar-composer" rows="2" placeholder="Reply to rivet…" style="display: block; width: 100%; box-sizing: border-box; resize: none; border: 0; outline: none; background: transparent; color: {{t.ink}}; padding: 12px 14px 0"></textarea>
+<div style="display: flex; align-items: center; gap: 8px; padding: 6px 8px 8px 14px; font-size: 11.5px; color: {{t.dim}}">
+<span>@ file</span><span>/ command</span>
+<button type="submit" style="margin-left: auto; min-height: 30px; padding: 4px 16px; border: 0; background: {{t.accent}}; color: {{t.bg}}; font-weight: 700">send ⏎</button>
+</div>
+</div>
+</form>
+</main>
+</div>
+
+<!-- statusline: session metadata moves out of the header chips -->
+<footer style="height: 26px; flex-shrink: 0; display: flex; align-items: stretch; font-size: 11.5px; background: {{t.panel}}; border-top: 1px solid {{t.line}}">
+<span style="display: flex; align-items: center; padding: 0 12px; background: {{t.accent}}; color: {{t.bg}}; font-weight: 700">RIVET</span>
+<span style="display: flex; align-items: center; padding: 0 12px; background: {{t.panel2}}">den-01</span>
+<span style="display: flex; align-items: center; padding: 0 12px; color: {{t.dim}}">~/rivetOS · <span style="color: {{t.green}}">&#160;main</span></span>
+<span style="margin-left: auto; display: flex; align-items: center; padding: 0 12px; color: {{t.dim}}">claude-code · opus · high</span>
+<span style="display: flex; align-items: center; gap: 8px; padding: 0 12px; background: {{t.panel2}}">ctx <span style="display: inline-block; width: 80px; height: 5px; background: {{t.bg}}"><span style="display: block; width: 41%; height: 5px; background: {{t.accent}}"></span></span> 41%</span>
+<span style="display: flex; align-items: center; padding: 0 12px; background: {{t.magenta}}; color: {{t.bg}}; font-weight: 700">14:32</span>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["catppuccin","catppuccin-latte","tokyo-night","gruvbox","rose-pine","everforest","kanagawa"],"default":"catppuccin"},"fontFace":{"editor":"enum","options":["Fira Code","JetBrains Mono","IBM Plex Mono"],"default":"Fira Code"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = {
+      'catppuccin': { bg: '#1e1e2e', panel: '#181825', panel2: '#313244', line: '#45475a', ink: '#cdd6f4', dim: '#9399b2', accent: '#89b4fa', green: '#a6e3a1', magenta: '#cba6f7', orange: '#fab387', red: '#f38ba8' },
+      'catppuccin-latte': { bg: '#eff1f5', panel: '#e6e9ef', panel2: '#dce0e8', line: '#bcc0cc', ink: '#4c4f69', dim: '#5c5f77', accent: '#1e66f5', green: '#40a02b', magenta: '#8839ef', orange: '#fe640b', red: '#d20f39' },
+      'tokyo-night': { bg: '#1a1b26', panel: '#16161e', panel2: '#24283b', line: '#2f3549', ink: '#c0caf5', dim: '#7a82ad', accent: '#7aa2f7', green: '#9ece6a', magenta: '#bb9af7', orange: '#ff9e64', red: '#f7768e' },
+      'gruvbox': { bg: '#282828', panel: '#1d2021', panel2: '#3c3836', line: '#504945', ink: '#ebdbb2', dim: '#a89984', accent: '#fabd2f', green: '#b8bb26', magenta: '#d3869b', orange: '#fe8019', red: '#fb4934' },
+      'rose-pine': { bg: '#191724', panel: '#1f1d2e', panel2: '#26233a', line: '#403d52', ink: '#e0def4', dim: '#908caa', accent: '#c4a7e7', green: '#9ccfd8', magenta: '#ebbcba', orange: '#f6c177', red: '#eb6f92' },
+      'everforest': { bg: '#2d353b', panel: '#272e33', panel2: '#343f44', line: '#475258', ink: '#d3c6aa', dim: '#9da9a0', accent: '#a7c080', green: '#83c092', magenta: '#d699b6', orange: '#e69875', red: '#e67e80' },
+      'kanagawa': { bg: '#1f1f28', panel: '#16161d', panel2: '#2a2a37', line: '#363646', ink: '#dcd7ba', dim: '#938aa9', accent: '#7e9cd8', green: '#98bb6c', magenta: '#957fb8', orange: '#ffa066', red: '#ff5d62' }
+    };
+    const face = this.props.fontFace ?? 'Fira Code';
+    return { t: P[this.props.theme ?? 'catppuccin'] ?? P['catppuccin'], font: "'" + face + "', ui-monospace, monospace" };
+  }
+}
+</script>
+</body>
+</html>

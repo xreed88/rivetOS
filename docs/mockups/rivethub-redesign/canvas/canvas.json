@@ -1,0 +1,68 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-09-26T12:00:00Z"
+  },
+  "title": "RivetHub Redesign Mockups",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 900,
+      "title": "A \u00b7 Tiled (Omarchy native)",
+      "is_interactive": true
+    },
+    "Waybar.dc.html": {
+      "x": 1520,
+      "y": 0,
+      "w": 1440,
+      "h": 900,
+      "title": "B \u00b7 Bar-first (Omarchy, no sidebar)",
+      "is_interactive": true
+    },
+    "Synthwave.dc.html": {
+      "x": 3040,
+      "y": 0,
+      "w": 1440,
+      "h": 900,
+      "title": "C \u00b7 Synthwave '84"
+    },
+    "Logos.dc.html": {
+      "x": 0,
+      "y": 1020,
+      "w": 1440,
+      "h": 900,
+      "title": "Logo options"
+    },
+    "Colorways.dc.html": {
+      "x": 1520,
+      "y": 1020,
+      "w": 1440,
+      "h": 1040,
+      "title": "Logo colorways"
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Waybar.dc.html",
+    "Synthwave.dc.html",
+    "Logos.dc.html",
+    "Colorways.dc.html"
+  ],
+  "notes": {
+    "heading": {
+      "x": 0,
+      "y": -300,
+      "text": "RivetHub redesign: no mascot, Omarchy type, three directions",
+      "kind": "title1",
+      "maxW": 4480
+    }
+  },
+  "designSystems": []
+}

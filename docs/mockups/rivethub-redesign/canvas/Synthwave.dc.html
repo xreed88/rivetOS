@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RivetHub — Synthwave</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&amp;family=Space+Mono:wght@400;700&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit}
+button,textarea{font:inherit}
+button{cursor:pointer}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</helmet>
+<div style="position: relative; width: 1440px; height: 900px; box-sizing: border-box; overflow: hidden; display: flex; background: #0e0420; color: #f3e8ff; font-family: {{body}}; font-size: 13.5px; line-height: 1.6">
+
+<!-- rail -->
+<aside style="width: 240px; flex-shrink: 0; display: flex; flex-direction: column; background: #150830; border-right: 1px solid #3b1a6e">
+<div style="padding: 26px 22px 22px">
+<div style="font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 26px; letter-spacing: 2px; line-height: 1; background: linear-gradient(180deg, #f9c80e 0%, #ff6c11 45%, #ff2e97 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: {{logoGlow}}">RIVET</div>
+<div style="margin-top: 6px; font-family: 'Orbitron', sans-serif; font-weight: 500; font-size: 11px; letter-spacing: 7px; color: #2de2e6; text-shadow: {{cyanGlow}}">HUB</div>
+</div>
+<nav aria-label="Main" style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px">
+<a href="#" aria-current="page" style="padding: 9px 12px; text-decoration: none; font-family: 'Orbitron', sans-serif; font-size: 12px; letter-spacing: 2px; color: #ff2e97; border: 1px solid #ff2e97; background: rgba(255, 46, 151, 0.1); box-shadow: {{pinkBox}}; text-shadow: {{pinkGlow}}">CONVERSATIONS</a>
+<a href="#" style="padding: 9px 12px; text-decoration: none; font-family: 'Orbitron', sans-serif; font-size: 12px; letter-spacing: 2px; color: #c9b3ec; border: 1px solid transparent">SESSIONS</a>
+<a href="#" style="padding: 9px 12px; text-decoration: none; font-family: 'Orbitron', sans-serif; font-size: 12px; letter-spacing: 2px; color: #c9b3ec; border: 1px solid transparent">MEMORY</a>
+<a href="#" style="padding: 9px 12px; text-decoration: none; font-family: 'Orbitron', sans-serif; font-size: 12px; letter-spacing: 2px; color: #c9b3ec; border: 1px solid transparent">FILES</a>
+<a href="#" style="display: flex; justify-content: space-between; padding: 9px 12px; text-decoration: none; font-family: 'Orbitron', sans-serif; font-size: 12px; letter-spacing: 2px; color: #c9b3ec; border: 1px solid transparent">TASKS<span style="color: #f9c80e">02</span></a>
+<a href="#" style="padding: 9px 12px; text-decoration: none; font-family: 'Orbitron', sans-serif; font-size: 12px; letter-spacing: 2px; color: #c9b3ec; border: 1px solid transparent">WORKFLOWS</a>
+</nav>
+<div style="margin: 24px 24px 8px; font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 3px; color: #9d7fd0">AGENTS</div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 0 24px; font-size: 12.5px">
+<div style="display: flex; align-items: center; gap: 10px"><span style="width: 8px; height: 8px; background: #2de2e6; box-shadow: {{cyanBox}}"></span>rivet<span style="margin-left: auto; color: #9d7fd0">claude</span></div>
+<div style="display: flex; align-items: center; gap: 10px"><span style="width: 8px; height: 8px; background: #f9c80e"></span>forge<span style="margin-left: auto; color: #9d7fd0">opencode</span></div>
+<div style="display: flex; align-items: center; gap: 10px; color: #9d7fd0"><span style="width: 8px; height: 8px; border: 1px solid #9d7fd0; box-sizing: border-box"></span>scout<span style="margin-left: auto">idle</span></div>
+</div>
+<div style="margin-top: auto; padding: 16px 12px; border-top: 1px solid #3b1a6e; display: flex; flex-direction: column; gap: 6px">
+<a href="#" style="padding: 8px 12px; text-decoration: none; font-family: 'Orbitron', sans-serif; font-size: 12px; letter-spacing: 2px; color: #c9b3ec">SETTINGS</a>
+<button type="button" style="display: flex; justify-content: space-between; padding: 9px 12px; border: 1px solid #3b1a6e; background: #0e0420; color: #f3e8ff; text-align: left"><span>den-01</span><span style="color: #2de2e6">● online</span></button>
+</div>
+</aside>
+
+<main style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column">
+
+<!-- horizon header -->
+<div style="position: relative; height: 190px; flex-shrink: 0; overflow: hidden; background: linear-gradient(180deg, #0e0420 0%, #2a0b4d 60%, #4a0f5c 100%); border-bottom: 2px solid #ff2e97; box-shadow: {{pinkBox}}">
+<div style="position: absolute; left: 50%; top: 42px; width: 240px; height: 240px; margin-left: -120px; border-radius: 50%; background: linear-gradient(180deg, #f9c80e 0%, #ff6c11 40%, #ff2e97 75%); -webkit-mask-image: linear-gradient(180deg, #000 0 48%, transparent 48% 52%, #000 52% 60%, transparent 60% 64%, #000 64% 70%, transparent 70% 75%, #000 75% 80%, transparent 80% 86%, #000 86% 100%); mask-image: linear-gradient(180deg, #000 0 48%, transparent 48% 52%, #000 52% 60%, transparent 60% 64%, #000 64% 70%, transparent 70% 75%, #000 75% 80%, transparent 80% 86%, #000 86% 100%); filter: {{sunGlow}}"></div>
+<div style="position: absolute; left: -200px; right: -200px; bottom: -120px; height: 220px; background-image: linear-gradient(#2de2e6 1px, transparent 1px), linear-gradient(90deg, #2de2e6 1px, transparent 1px); background-size: 48px 28px; transform: perspective(260px) rotateX(62deg); transform-origin: 50% 0; opacity: 0.55"></div>
+<div style="position: absolute; left: 32px; right: 32px; bottom: 18px; display: flex; align-items: flex-end; gap: 16px">
+<div>
+<div style="font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 3px; color: #2de2e6; text-shadow: {{cyanGlow}}">CONVERSATION</div>
+<h1 style="margin: 4px 0 0; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 26px; letter-spacing: 1px; color: #ffffff; text-shadow: {{pinkGlow}}">compaction-stall</h1>
+</div>
+<div style="margin-left: auto; display: flex; gap: 8px">
+<button type="button" style="padding: 5px 12px; border: 1px solid #b967ff; background: rgba(14, 4, 32, 0.8); color: #f3e8ff; font-size: 12px">model <span style="color: #ff2e97">opus</span></button>
+<button type="button" style="padding: 5px 12px; border: 1px solid #b967ff; background: rgba(14, 4, 32, 0.8); color: #f3e8ff; font-size: 12px">effort <span style="color: #f9c80e">high</span></button>
+<button type="button" style="padding: 5px 12px; border: 1px solid #b967ff; background: rgba(14, 4, 32, 0.8); color: #f3e8ff; font-size: 12px">node <span style="color: #2de2e6">den-01</span></button>
+</div>
+</div>
+</div>
+
+<div style="flex-grow: 1; min-height: 0; display: flex">
+<!-- transcript -->
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column">
+<div style="flex-grow: 1; min-height: 0; overflow: hidden; padding: 24px 32px; display: flex; flex-direction: column; gap: 22px">
+<div style="align-self: flex-end; max-width: 560px">
+<div style="text-align: right; font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 3px; color: #2de2e6">YOU</div>
+<div style="margin-top: 6px; padding: 12px 16px; border: 1px solid #2de2e6; background: rgba(45, 226, 230, 0.08)">The compaction worker stopped summarizing around 3am. Can you find out why and whether we lost anything?</div>
+</div>
+<div style="max-width: 760px">
+<div style="font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 3px; color: #ff2e97; text-shadow: {{pinkGlow}}">RIVET</div>
+<div style="margin-top: 8px; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #c9b3ec">
+<div><span style="color: #2de2e6">▸</span> memory_search "compaction worker stall" <span style="color: #9d7fd0">· 12 hits</span></div>
+<div><span style="color: #2de2e6">▸</span> shell journalctl -u compaction-worker --since 02:30</div>
+</div>
+<p style="margin: 12px 0 0">The worker hit a lock timeout on <span style="color: #f9c80e">messages_summary_lock</span> at 02:58 and never retried — the backoff loop exits after its first failure. Nothing was lost: the 412 unsummarized rows are still eligible for the next run.</p>
+<pre style="margin: 12px 0 0; padding: 14px 16px; background: #07020f; border: 1px solid #3b1a6e; font-family: inherit; font-size: 12.5px; line-height: 1.7; overflow: hidden"><span style="color: #9d7fd0">services/compaction-worker/src/loop.ts</span>
+<span style="color: #ff5e8a">-  if (err) return</span>
+<span style="color: #72f1b8">+  if (err) { await backoff(attempt++); continue }</span></pre>
+<p style="margin: 12px 0 0">Want me to open a PR with this fix?</p>
+</div>
+</div>
+<form style="margin: 0 32px 22px; border: 1px solid #2de2e6; background: #150830; box-shadow: {{cyanBox}}">
+<label for="synth-composer" class="sr">Message rivet</label>
+<textarea id="synth-composer" rows="2" placeholder="transmit to rivet_" style="display: block; width: 100%; box-sizing: border-box; resize: none; border: 0; outline: none; background: transparent; color: #f3e8ff; padding: 12px 16px 0"></textarea>
+<div style="display: flex; align-items: center; gap: 12px; padding: 6px 8px 8px 16px; font-size: 11px; color: #9d7fd0">
+<span>@ file</span><span>/ command</span>
+<button type="submit" style="margin-left: auto; min-height: 32px; padding: 4px 18px; border: 0; background: linear-gradient(90deg, #ff2e97, #ff6c11); color: #0e0420; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 12px; letter-spacing: 2px">SEND</button>
+</div>
+</form>
+</div>
+
+<!-- side meters -->
+<aside aria-label="Session" style="width: 280px; flex-shrink: 0; border-left: 1px solid #3b1a6e; background: #120628; padding: 22px 22px; display: flex; flex-direction: column; gap: 26px">
+<section>
+<div style="display: flex; justify-content: space-between; font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 3px; color: #9d7fd0"><span>CONTEXT</span><span style="color: #f9c80e">41%</span></div>
+<div style="margin-top: 10px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 3px">
+<span style="height: 16px; background: #2de2e6"></span><span style="height: 16px; background: #2de2e6"></span><span style="height: 16px; background: #2de2e6"></span><span style="height: 16px; background: #b967ff"></span><span style="height: 16px; background: #ff2e97"></span><span style="height: 16px; background: #3b1a6e"></span><span style="height: 16px; background: #3b1a6e"></span><span style="height: 16px; background: #3b1a6e"></span><span style="height: 16px; background: #3b1a6e"></span><span style="height: 16px; background: #3b1a6e"></span><span style="height: 16px; background: #3b1a6e"></span><span style="height: 16px; background: #3b1a6e"></span>
+</div>
+</section>
+<section>
+<div style="font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 3px; color: #9d7fd0">TASKS</div>
+<div style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px; font-size: 12.5px">
+<div><div><span style="color: #ff2e97">■</span> Approve: push fix/compaction-backoff</div><div style="font-size: 11px; color: #9d7fd0">forge · 2m ago</div></div>
+<div><div><span style="color: #ff2e97">■</span> Question: embed old sessions too?</div><div style="font-size: 11px; color: #9d7fd0">scout · 18m ago</div></div>
+<div><div><span style="color: #72f1b8">■</span> Nightly memory backup</div><div style="font-size: 11px; color: #9d7fd0">workflow · 04:00</div></div>
+</div>
+</section>
+<section>
+<div style="font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 3px; color: #9d7fd0">SESSION</div>
+<div style="margin-top: 10px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; font-size: 12px">
+<div><div style="color: #9d7fd0">harness</div>claude-code</div>
+<div><div style="color: #9d7fd0">branch</div><span style="color: #72f1b8">main</span></div>
+<div><div style="color: #9d7fd0">cwd</div>~/rivetOS</div>
+<div><div style="color: #9d7fd0">uptime</div>3h 12m</div>
+</div>
+</section>
+</aside>
+</div>
+</main>
+
+<sc-if value="{{scanlines}}" hint-placeholder-val="{{scanlines}}">
+<div aria-hidden="true" style="position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0) 0 2px, rgba(0, 0, 0, 0.18) 2px 3px)"></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"glow":{"editor":"boolean","default":true},"scanlines":{"editor":"boolean","default":false},"bodyFont":{"editor":"enum","options":["Space Mono","JetBrains Mono"],"default":"Space Mono"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const g = this.props.glow ?? true;
+    const face = this.props.bodyFont ?? 'Space Mono';
+    return {
+      body: "'" + face + "', ui-monospace, monospace",
+      scanlines: this.props.scanlines ?? false,
+      logoGlow: g ? 'drop-shadow(0 0 10px rgba(255, 46, 151, 0.6))' : 'none',
+      sunGlow: g ? 'drop-shadow(0 0 28px rgba(255, 108, 17, 0.55))' : 'none',
+      pinkGlow: g ? '0 0 8px rgba(255, 46, 151, 0.8)' : 'none',
+      cyanGlow: g ? '0 0 8px rgba(45, 226, 230, 0.8)' : 'none',
+      pinkBox: g ? '0 0 14px rgba(255, 46, 151, 0.45)' : 'none',
+      cyanBox: g ? '0 0 12px rgba(45, 226, 230, 0.4)' : 'none'
+    };
+  }
+}
+</script>
+</body>
+</html>
