@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RivetHub — Logo colorways</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1040px; box-sizing: border-box; padding: 48px 64px; display: flex; flex-direction: column; gap: 24px; background: #1a1b26; color: #c0caf5; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; line-height: 1.5">
+
+<div style="display: grid; grid-template-columns: 180px repeat(3, minmax(0, 1fr)); gap: 20px; align-items: end">
+<h1 style="margin: 0; font-size: 20px; font-weight: 800">colorways</h1>
+<div style="font-weight: 800">01 · Hub</div>
+<div style="font-weight: 800">02 · Tile</div>
+<div style="font-weight: 800">03 · Join</div>
+</div>
+
+<sc-for list="{{rows}}" as="row" hint-placeholder-count="3">
+<div style="display: grid; grid-template-columns: 180px repeat(3, minmax(0, 1fr)); gap: 20px; height: 270px">
+
+<div style="display: flex; flex-direction: column; justify-content: center; gap: 10px">
+<div style="font-size: 18px; font-weight: 800; color: {{row.p}}">{{row.name}}</div>
+<div style="display: flex; gap: 8px; align-items: center"><span style="width: 18px; height: 18px; background: {{row.p}}"></span><span style="color: #a9b1d6">{{row.p}}</span></div>
+<div style="display: flex; gap: 8px; align-items: center"><span style="width: 18px; height: 18px; background: {{row.s}}"></span><span style="color: #a9b1d6">{{row.s}}</span></div>
+<div style="font-size: 11px; color: #7a82ad">{{row.note}}</div>
+</div>
+
+<!-- Hub -->
+<div style="display: flex; align-items: center; gap: 24px; padding: 0 24px; background: #16161e; border: 2px solid #2f3549">
+<svg viewBox="0 0 64 64" width="150" height="150" aria-label="Hub mark"><circle cx="32" cy="32" r="25" fill="none" stroke="{{row.s}}" stroke-width="4"></circle><path d="M32 32 L32 7 M32 32 L53.65 44.5 M32 32 L10.35 44.5" stroke="{{row.s}}" stroke-width="3"></path><circle cx="32" cy="7" r="5.5" fill="{{row.p}}"></circle><circle cx="53.65" cy="44.5" r="5.5" fill="{{row.p}}"></circle><circle cx="10.35" cy="44.5" r="5.5" fill="{{row.p}}"></circle><circle cx="32" cy="32" r="9" fill="{{row.p}}"></circle><circle cx="32" cy="32" r="3.5" fill="#16161e"></circle></svg>
+<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 14px">
+<div style="display: flex; align-items: flex-end; gap: 12px">
+<svg viewBox="0 0 64 64" width="32" height="32" aria-hidden="true"><circle cx="32" cy="32" r="25" fill="none" stroke="{{row.s}}" stroke-width="5"></circle><path d="M32 32 L32 7 M32 32 L53.65 44.5 M32 32 L10.35 44.5" stroke="{{row.s}}" stroke-width="4"></path><circle cx="32" cy="7" r="7" fill="{{row.p}}"></circle><circle cx="53.65" cy="44.5" r="7" fill="{{row.p}}"></circle><circle cx="10.35" cy="44.5" r="7" fill="{{row.p}}"></circle><circle cx="32" cy="32" r="10" fill="{{row.p}}"></circle></svg>
+<svg viewBox="0 0 64 64" width="16" height="16" aria-hidden="true"><circle cx="32" cy="32" r="25" fill="none" stroke="{{row.s}}" stroke-width="7"></circle><circle cx="32" cy="7" r="9" fill="{{row.p}}"></circle><circle cx="53.65" cy="44.5" r="9" fill="{{row.p}}"></circle><circle cx="10.35" cy="44.5" r="9" fill="{{row.p}}"></circle><circle cx="32" cy="32" r="11" fill="{{row.p}}"></circle></svg>
+</div>
+<div style="width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; background: #f6f4ee">
+<svg viewBox="0 0 64 64" width="36" height="36" aria-hidden="true"><circle cx="32" cy="32" r="25" fill="none" stroke="{{row.ls}}" stroke-width="4"></circle><path d="M32 32 L32 7 M32 32 L53.65 44.5 M32 32 L10.35 44.5" stroke="{{row.ls}}" stroke-width="3"></path><circle cx="32" cy="7" r="5.5" fill="{{row.lp}}"></circle><circle cx="53.65" cy="44.5" r="5.5" fill="{{row.lp}}"></circle><circle cx="10.35" cy="44.5" r="5.5" fill="{{row.lp}}"></circle><circle cx="32" cy="32" r="9" fill="{{row.lp}}"></circle><circle cx="32" cy="32" r="3.5" fill="#f6f4ee"></circle></svg>
+</div>
+</div>
+</div>
+
+<!-- Tile -->
+<div style="display: flex; align-items: center; gap: 24px; padding: 0 24px; background: #16161e; border: 2px solid #2f3549">
+<svg viewBox="0 0 64 64" width="150" height="150" aria-label="Tile mark"><rect x="4" y="4" width="26" height="56" fill="{{row.p}}"></rect><rect x="12" y="12" width="10" height="10" fill="#16161e"></rect><rect x="34" y="4" width="26" height="26" fill="{{row.s}}"></rect><rect x="34" y="34" width="11" height="26" fill="{{row.s}}"></rect><rect x="49" y="34" width="11" height="26" fill="{{row.s}}"></rect></svg>
+<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 14px">
+<div style="display: flex; align-items: flex-end; gap: 12px">
+<svg viewBox="0 0 64 64" width="32" height="32" aria-hidden="true"><rect x="4" y="4" width="26" height="56" fill="{{row.p}}"></rect><rect x="12" y="12" width="10" height="10" fill="#16161e"></rect><rect x="34" y="4" width="26" height="26" fill="{{row.s}}"></rect><rect x="34" y="34" width="11" height="26" fill="{{row.s}}"></rect><rect x="49" y="34" width="11" height="26" fill="{{row.s}}"></rect></svg>
+<svg viewBox="0 0 64 64" width="16" height="16" aria-hidden="true"><rect x="2" y="2" width="28" height="60" fill="{{row.p}}"></rect><rect x="36" y="2" width="26" height="28" fill="{{row.s}}"></rect><rect x="36" y="36" width="26" height="26" fill="{{row.s}}"></rect></svg>
+</div>
+<div style="width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; background: #f6f4ee">
+<svg viewBox="0 0 64 64" width="36" height="36" aria-hidden="true"><rect x="4" y="4" width="26" height="56" fill="{{row.lp}}"></rect><rect x="12" y="12" width="10" height="10" fill="#f6f4ee"></rect><rect x="34" y="4" width="26" height="26" fill="{{row.ls}}"></rect><rect x="34" y="34" width="11" height="26" fill="{{row.ls}}"></rect><rect x="49" y="34" width="11" height="26" fill="{{row.ls}}"></rect></svg>
+</div>
+</div>
+</div>
+
+<!-- Join -->
+<div style="display: flex; align-items: center; gap: 24px; padding: 0 24px; background: #16161e; border: 2px solid #2f3549">
+<svg viewBox="0 0 64 64" width="150" height="150" aria-label="Join mark"><rect x="4" y="27" width="40" height="8" fill="{{row.s}}"></rect><rect x="20" y="39" width="40" height="8" fill="{{row.s}}"></rect><rect x="27.5" y="20" width="9" height="33" fill="{{row.p}}"></rect><path d="M15 27 A17 12 0 0 1 49 27 Z" fill="{{row.p}}"></path><rect x="22" y="51" width="20" height="6" fill="{{row.p}}"></rect></svg>
+<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 14px">
+<div style="display: flex; align-items: flex-end; gap: 12px">
+<svg viewBox="0 0 64 64" width="32" height="32" aria-hidden="true"><rect x="2" y="26" width="42" height="10" fill="{{row.s}}"></rect><rect x="20" y="40" width="42" height="10" fill="{{row.s}}"></rect><rect x="27" y="20" width="10" height="34" fill="{{row.p}}"></rect><path d="M14 26 A18 13 0 0 1 50 26 Z" fill="{{row.p}}"></path><rect x="21" y="52" width="22" height="8" fill="{{row.p}}"></rect></svg>
+<svg viewBox="0 0 64 64" width="16" height="16" aria-hidden="true"><rect x="0" y="28" width="64" height="10" fill="{{row.s}}"></rect><rect x="26" y="20" width="12" height="40" fill="{{row.p}}"></rect><path d="M12 28 A20 18 0 0 1 52 28 Z" fill="{{row.p}}"></path><rect x="18" y="52" width="28" height="10" fill="{{row.p}}"></rect></svg>
+</div>
+<div style="width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; background: #f6f4ee">
+<svg viewBox="0 0 64 64" width="36" height="36" aria-hidden="true"><rect x="4" y="27" width="40" height="8" fill="{{row.ls}}"></rect><rect x="20" y="39" width="40" height="8" fill="{{row.ls}}"></rect><rect x="27.5" y="20" width="9" height="33" fill="{{row.lp}}"></rect><path d="M15 27 A17 12 0 0 1 49 27 Z" fill="{{row.lp}}"></path><rect x="22" y="51" width="20" height="6" fill="{{row.lp}}"></rect></svg>
+</div>
+</div>
+</div>
+
+</div>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1040}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      rows: [
+        { name: 'green', p: '#34d399', s: '#0f7a5a', lp: '#059669', ls: '#064e3b', note: 'today’s Rivet emerald' },
+        { name: 'orange', p: '#ff9e64', s: '#b35a26', lp: '#ea580c', ls: '#7c2d12', note: 'Tokyo Night orange' },
+        { name: 'red', p: '#f04438', s: '#9b1c1c', lp: '#dc2626', ls: '#7f1d1d', note: 'signal red' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

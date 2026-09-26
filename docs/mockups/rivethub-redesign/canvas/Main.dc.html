@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RivetHub — Tiled</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&amp;family=Fira+Code:wght@400;500;700&amp;family=IBM+Plex+Mono:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit}
+button{font:inherit;cursor:pointer}
+textarea{font:inherit}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; display: flex; flex-direction: column; background: {{t.bg}}; color: {{t.ink}}; font-family: {{font}}; font-size: 13px; line-height: 1.55">
+
+<!-- waybar-style top strip -->
+<header style="height: 30px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; padding: 0 12px; background: {{t.panel}}; border-bottom: 1px solid {{t.line}}; font-size: 12px">
+<nav aria-label="Workspaces" style="display: flex; gap: 2px">
+<button type="button" style="border: 0; background: {{t.accent}}; color: {{t.bg}}; padding: 2px 9px; font-weight: 700">1</button>
+<button type="button" style="border: 0; background: transparent; color: {{t.dim}}; padding: 2px 9px">2</button>
+<button type="button" style="border: 0; background: transparent; color: {{t.dim}}; padding: 2px 9px">3</button>
+<button type="button" style="border: 0; background: transparent; color: {{t.dim}}; padding: 2px 9px">4</button>
+</nav>
+<span style="color: {{t.dim}}">chat · sessions · memory · files</span>
+<span style="margin-left: auto; color: {{t.dim}}">theme <span style="color: {{t.ink}}">{{t.name}}</span></span>
+<a href="#" style="text-decoration: none; color: {{t.red}}">! 2 need you</a>
+<span style="color: {{t.green}}">● den-01</span>
+<span style="color: {{t.ink}}">Sat 14:32</span>
+</header>
+
+<!-- dwindle tiles -->
+<div style="flex-grow: 1; min-height: 0; display: grid; grid-template-columns: {{cols}}; gap: 10px; padding: 10px">
+
+<!-- tile: rail -->
+<aside style="display: flex; flex-direction: column; min-height: 0; background: {{t.panel}}; border: 2px solid {{t.line}}">
+<div style="padding: 16px 16px 14px; border-bottom: 1px solid {{t.line}}">
+<div style="font-size: 22px; font-weight: 800; letter-spacing: -0.5px; line-height: 1"><span style="color: {{t.accent}}">rivet</span><span style="color: {{t.dim}}">hub</span></div>
+<div style="margin-top: 6px; font-size: 11px; color: {{t.dim}}">v0.4.0-beta.6</div>
+</div>
+<nav aria-label="Main" style="display: flex; flex-direction: column; padding: 8px">
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; background: {{t.panel2}}; color: {{t.accent}}; border-left: 2px solid {{t.accent}}"><span>conversations</span><span style="color: {{t.dim}}">⌃1</span></a>
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; border-left: 2px solid transparent"><span>sessions</span><span style="color: {{t.dim}}">⌃2</span></a>
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; border-left: 2px solid transparent"><span>memory</span><span style="color: {{t.dim}}">⌃3</span></a>
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; border-left: 2px solid transparent"><span>files</span><span style="color: {{t.dim}}">⌃4</span></a>
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; border-left: 2px solid transparent"><span>tasks <span style="color: {{t.red}}">2</span></span><span style="color: {{t.dim}}">⌃5</span></a>
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; border-left: 2px solid transparent"><span>workflows</span><span style="color: {{t.dim}}">⌃6</span></a>
+</nav>
+<div style="padding: 12px 18px 6px; font-size: 11px; color: {{t.dim}}; text-transform: uppercase; letter-spacing: 1px">agents</div>
+<div style="display: flex; flex-direction: column; gap: 2px; padding: 0 8px">
+<div style="display: flex; gap: 8px; padding: 5px 10px"><span style="color: {{t.green}}">●</span><span>rivet</span><span style="margin-left: auto; color: {{t.dim}}">claude</span></div>
+<div style="display: flex; gap: 8px; padding: 5px 10px"><span style="color: {{t.orange}}">●</span><span>forge</span><span style="margin-left: auto; color: {{t.dim}}">opencode</span></div>
+<div style="display: flex; gap: 8px; padding: 5px 10px"><span style="color: {{t.dim}}">○</span><span style="color: {{t.dim}}">scout</span><span style="margin-left: auto; color: {{t.dim}}">idle</span></div>
+</div>
+<div style="margin-top: auto; border-top: 1px solid {{t.line}}; padding: 8px">
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none"><span>settings</span><span style="color: {{t.dim}}">⌃,</span></a>
+<button type="button" style="width: 100%; display: flex; justify-content: space-between; margin-top: 4px; padding: 8px 10px; background: {{t.bg}}; color: {{t.ink}}; border: 1px solid {{t.line}}; text-align: left"><span>den-01 <span style="color: {{t.dim}}">· local</span></span><span style="color: {{t.dim}}">▾</span></button>
+</div>
+</aside>
+
+<!-- tile: chat (focused) -->
+<main style="display: flex; flex-direction: column; min-height: 0; background: {{t.panel}}; border: 2px solid {{t.accent}}">
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid {{t.line}}">
+<span style="color: {{t.dim}}">~/conversations/</span><span style="font-weight: 700; margin-left: -12px">compaction-stall</span>
+<div style="margin-left: auto; display: flex; align-items: center; gap: 6px">
+<button type="button" style="border: 1px solid {{t.line}}; background: {{t.bg}}; color: {{t.ink}}; padding: 3px 10px">model <span style="color: {{t.magenta}}">opus</span></button>
+<button type="button" style="border: 1px solid {{t.line}}; background: {{t.bg}}; color: {{t.ink}}; padding: 3px 10px">effort <span style="color: {{t.orange}}">high</span></button>
+<button type="button" style="border: 1px solid {{t.line}}; background: {{t.bg}}; color: {{t.ink}}; padding: 3px 10px">node <span style="color: {{t.green}}">den-01</span></button>
+<button type="button" onClick="{{toggle}}" aria-expanded="{{openStr}}" aria-controls="tiled-details" title="82k / 200k · compacts at 165k" style="display: flex; align-items: center; gap: 8px; margin-left: 6px; border: 1px solid {{toggleBorder}}; background: {{toggleBg}}; color: {{t.ink}}; padding: 3px 10px">
+<span style="display: inline-block; width: 44px; height: 5px; background: {{t.panel2}}"><span style="display: block; width: 50%; height: 5px; background: {{t.accent}}"></span></span>
+<span>50%</span>
+<span style="color: {{t.dim}}">{{chevron}}</span>
+</button>
+</div>
+</div>
+
+<div style="flex-grow: 1; min-height: 0; overflow: hidden; padding: 20px 28px; display: flex; flex-direction: column; gap: 22px">
+<div>
+<div style="color: {{t.accent}}; font-weight: 700">you ›</div>
+<div style="margin-top: 4px">The compaction worker stopped summarizing around 3am. Can you find out why and whether we lost anything?</div>
+</div>
+
+<div>
+<div style="color: {{t.magenta}}; font-weight: 700">rivet ›</div>
+<div style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; gap: 10px; padding: 6px 10px; background: {{t.bg}}; border: 1px solid {{t.line}}"><span style="color: {{t.green}}">✓</span><span>memory_search</span><span style="color: {{t.dim}}">"compaction worker stall"</span><span style="margin-left: auto; color: {{t.dim}}">12 hits</span></div>
+<div style="display: flex; gap: 10px; padding: 6px 10px; background: {{t.bg}}; border: 1px solid {{t.line}}"><span style="color: {{t.green}}">✓</span><span>shell</span><span style="color: {{t.dim}}">journalctl -u compaction-worker --since 02:30</span></div>
+</div>
+<p style="margin: 12px 0 0">The worker hit a lock timeout on <span style="color: {{t.cyan}}">messages_summary_lock</span> at 02:58 and never retried — the backoff loop exits after the first failure. Nothing was lost: the 412 unsummarized rows are still eligible and will be picked up on the next run.</p>
+<pre style="margin: 12px 0 0; padding: 12px 14px; background: {{t.bg}}; border: 1px solid {{t.line}}; font-family: inherit; font-size: 12px; line-height: 1.6; overflow: hidden"><span style="color: {{t.dim}}">services/compaction-worker/src/loop.ts</span>
+<span style="color: {{t.red}}">-  if (err) return</span>
+<span style="color: {{t.green}}">+  if (err) { await backoff(attempt++); continue }</span></pre>
+<p style="margin: 12px 0 0">Want me to open a PR with this fix?</p>
+</div>
+</div>
+
+<form style="margin: 0 16px 16px; border: 1px solid {{t.line}}; background: {{t.bg}}">
+<label for="tiled-composer" class="sr">Message rivet</label>
+<div style="display: flex; gap: 10px; padding: 12px 14px 4px">
+<span style="color: {{t.accent}}; font-weight: 700">❯</span>
+<textarea id="tiled-composer" rows="2" placeholder="message rivet — / for commands, @ for files" style="flex-grow: 1; resize: none; border: 0; outline: none; background: transparent; color: {{t.ink}}; padding: 0"></textarea>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 6px 10px 8px 14px; font-size: 11px; color: {{t.dim}}">
+<span>⏎ send</span><span>⇧⏎ newline</span><span>⌃k palette</span>
+<button type="submit" style="margin-left: auto; min-height: 30px; padding: 4px 16px; border: 0; background: {{t.accent}}; color: {{t.bg}}; font-weight: 700">send</button>
+</div>
+</form>
+</main>
+
+<!-- details tile: only exists while toggled open (Hyprland-style split) -->
+<sc-if value="{{open}}" hint-placeholder-val="{{open}}">
+<aside id="tiled-details" aria-label="Session details" style="display: flex; flex-direction: column; min-height: 0; background: {{t.panel}}; border: 2px solid {{t.line}}">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid {{t.line}}">
+<span style="font-size: 11px; color: {{t.dim}}; text-transform: uppercase; letter-spacing: 1px">details</span>
+<button type="button" onClick="{{toggle}}" aria-label="Close details" style="border: 0; background: transparent; color: {{t.dim}}; padding: 2px 6px">✕</button>
+</div>
+<section style="padding: 14px">
+<div style="display: flex; justify-content: space-between; font-size: 12px"><span>context</span><span>82k / 200k</span></div>
+<div style="margin-top: 8px; height: 6px; background: {{t.bg}}"><div style="width: 50%; height: 6px; background: {{t.accent}}"></div></div>
+<div style="margin-top: 6px; font-size: 11px; color: {{t.dim}}">compacts at 165k · amber at 70%, red at 90%</div>
+<div style="margin-top: 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; font-size: 12px">
+<div><div style="color: {{t.dim}}">harness</div><div>claude-code</div></div>
+<div><div style="color: {{t.dim}}">model</div><div>opus · high</div></div>
+<div><div style="color: {{t.dim}}">node</div><div style="color: {{t.green}}">den-01</div></div>
+<div><div style="color: {{t.dim}}">cwd</div><div>~/rivetOS</div></div>
+</div>
+</section>
+<section style="border-top: 1px solid {{t.line}}">
+<div style="padding: 12px 14px 6px; font-size: 11px; color: {{t.dim}}; text-transform: uppercase; letter-spacing: 1px">needs you</div>
+<a href="#" style="display: flex; gap: 10px; padding: 8px 14px; text-decoration: none"><span style="color: {{t.red}}">!</span><div><div>Approve: push fix/compaction-backoff</div><div style="font-size: 11px; color: {{t.dim}}">forge · 2m ago</div></div></a>
+<a href="#" style="display: flex; gap: 10px; padding: 8px 14px; text-decoration: none"><span style="color: {{t.red}}">!</span><div><div>Question: embed old sessions too?</div><div style="font-size: 11px; color: {{t.dim}}">scout · 18m ago</div></div></a>
+</section>
+</aside>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["tokyo-night","catppuccin","gruvbox","rose-pine","everforest","kanagawa","matte-black"],"default":"tokyo-night"},"fontFace":{"editor":"enum","options":["JetBrains Mono","Fira Code","IBM Plex Mono"],"default":"JetBrains Mono"},"detailsOpen":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = {
+      'tokyo-night': { name: 'tokyo-night', bg: '#1a1b26', panel: '#16161e', panel2: '#24283b', line: '#2f3549', ink: '#c0caf5', dim: '#7a82ad', accent: '#7aa2f7', green: '#9ece6a', magenta: '#bb9af7', orange: '#ff9e64', red: '#f7768e', cyan: '#7dcfff' },
+      'catppuccin': { name: 'catppuccin', bg: '#1e1e2e', panel: '#181825', panel2: '#313244', line: '#45475a', ink: '#cdd6f4', dim: '#9399b2', accent: '#89b4fa', green: '#a6e3a1', magenta: '#cba6f7', orange: '#fab387', red: '#f38ba8', cyan: '#94e2d5' },
+      'gruvbox': { name: 'gruvbox', bg: '#282828', panel: '#1d2021', panel2: '#3c3836', line: '#504945', ink: '#ebdbb2', dim: '#a89984', accent: '#fabd2f', green: '#b8bb26', magenta: '#d3869b', orange: '#fe8019', red: '#fb4934', cyan: '#8ec07c' },
+      'rose-pine': { name: 'rose-pine', bg: '#191724', panel: '#1f1d2e', panel2: '#26233a', line: '#403d52', ink: '#e0def4', dim: '#908caa', accent: '#c4a7e7', green: '#9ccfd8', magenta: '#ebbcba', orange: '#f6c177', red: '#eb6f92', cyan: '#9ccfd8' },
+      'everforest': { name: 'everforest', bg: '#2d353b', panel: '#272e33', panel2: '#343f44', line: '#475258', ink: '#d3c6aa', dim: '#9da9a0', accent: '#a7c080', green: '#83c092', magenta: '#d699b6', orange: '#e69875', red: '#e67e80', cyan: '#7fbbb3' },
+      'kanagawa': { name: 'kanagawa', bg: '#1f1f28', panel: '#16161d', panel2: '#2a2a37', line: '#363646', ink: '#dcd7ba', dim: '#938aa9', accent: '#7e9cd8', green: '#98bb6c', magenta: '#957fb8', orange: '#ffa066', red: '#ff5d62', cyan: '#7fb4ca' },
+      'matte-black': { name: 'matte-black', bg: '#121212', panel: '#0b0b0b', panel2: '#1c1c1c', line: '#2a2a2a', ink: '#bebebe', dim: '#8a8a8d', accent: '#e68e0d', green: '#a3be8c', magenta: '#c49ec4', orange: '#f59e0b', red: '#d35f5f', cyan: '#8fbcbb' }
+    };
+    const face = this.props.fontFace ?? 'JetBrains Mono';
+    const t = P[this.props.theme ?? 'tokyo-night'] ?? P['tokyo-night'];
+    const st = this.state || {};
+    const open = st.open ?? (this.props.detailsOpen ?? false);
+    return {
+      t, font: "'" + face + "', ui-monospace, monospace",
+      open, openStr: open ? 'true' : 'false',
+      cols: open ? '232px minmax(0, 1fr) 300px' : '232px minmax(0, 1fr)',
+      chevron: open ? '▸' : '◂',
+      toggleBorder: open ? t.accent : t.line,
+      toggleBg: open ? t.panel2 : t.bg,
+      toggle: () => this.setState({ open: !open })
+    };
+  }
+}
+</script>
+</body>
+</html>
