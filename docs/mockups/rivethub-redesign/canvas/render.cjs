@@ -15,6 +15,8 @@ const jobs=[
  ['Logos.dc.html','logos/logos-tokyo-night',{}],
  ['Logos.dc.html','logos/logos-gruvbox-accent',{accent:'#fabd2f'}],
  ['Colorways.dc.html','logos/logos-colorways',{},1040],
+ ['Weave.dc.html','logos/logos-weave',{},960],
+ ['Weave.dc.html','logos/logos-weave-green',{accent:'#34d399'},960],
 ];
 function get(o,p){return p.split('.').reduce((a,k)=>a==null?a:a[k],o)}
 function build(src,props){

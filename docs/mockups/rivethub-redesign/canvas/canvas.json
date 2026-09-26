@@ -46,6 +46,13 @@
       "w": 1440,
       "h": 1040,
       "title": "Logo colorways"
+    },
+    "Weave.dc.html": {
+      "x": 0,
+      "y": 2180,
+      "w": 1440,
+      "h": 960,
+      "title": "Tile + weave"
     }
   },
   "order": [
@@ -53,7 +60,8 @@
     "Waybar.dc.html",
     "Synthwave.dc.html",
     "Logos.dc.html",
-    "Colorways.dc.html"
+    "Colorways.dc.html",
+    "Weave.dc.html"
   ],
   "notes": {
     "heading": {
