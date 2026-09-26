@@ -1,0 +1,127 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&amp;family=Fira+Code:wght@400;500;700&amp;family=IBM+Plex+Mono:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit}
+button{font:inherit;cursor:pointer}
+textarea{font:inherit}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</head><body>
+
+<div style="width: 1440px; height: 900px; box-sizing: border-box; display: flex; flex-direction: column; background: #1a1b26; color: #c0caf5; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; line-height: 1.55">
+
+<!-- waybar-style top strip -->
+<header style="height: 30px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; padding: 0 12px; background: #16161e; border-bottom: 1px solid #2f3549; font-size: 12px">
+<nav aria-label="Workspaces" style="display: flex; gap: 2px">
+<button type="button" style="border: 0; background: #7aa2f7; color: #1a1b26; padding: 2px 9px; font-weight: 700">1</button>
+<button type="button" style="border: 0; background: transparent; color: #7a82ad; padding: 2px 9px">2</button>
+<button type="button" style="border: 0; background: transparent; color: #7a82ad; padding: 2px 9px">3</button>
+<button type="button" style="border: 0; background: transparent; color: #7a82ad; padding: 2px 9px">4</button>
+</nav>
+<span style="color: #7a82ad">chat · sessions · memory · files</span>
+<span style="margin-left: auto; color: #7a82ad">theme <span style="color: #c0caf5">tokyo-night</span></span>
+<span style="color: #9ece6a">● den-01</span>
+<span style="color: #c0caf5">Sat 14:32</span>
+</header>
+
+<!-- dwindle tiles -->
+<div style="flex-grow: 1; min-height: 0; display: grid; grid-template-columns: 232px minmax(0, 1fr) 320px; gap: 10px; padding: 10px">
+
+<!-- tile: rail -->
+<aside style="display: flex; flex-direction: column; min-height: 0; background: #16161e; border: 2px solid #2f3549">
+<div style="padding: 16px 16px 14px; border-bottom: 1px solid #2f3549">
+<div style="font-size: 22px; font-weight: 800; letter-spacing: -0.5px; line-height: 1"><span style="color: #7aa2f7">rivet</span><span style="color: #7a82ad">hub</span></div>
+<div style="margin-top: 6px; font-size: 11px; color: #7a82ad">v0.4.0-beta.6</div>
+</div>
+<nav aria-label="Main" style="display: flex; flex-direction: column; padding: 8px">
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; background: #24283b; color: #7aa2f7; border-left: 2px solid #7aa2f7"><span>conversations</span><span style="color: #7a82ad">⌃1</span></a>
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; border-left: 2px solid transparent"><span>sessions</span><span style="color: #7a82ad">⌃2</span></a>
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; border-left: 2px solid transparent"><span>memory</span><span style="color: #7a82ad">⌃3</span></a>
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; border-left: 2px solid transparent"><span>files</span><span style="color: #7a82ad">⌃4</span></a>
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; border-left: 2px solid transparent"><span>tasks <span style="color: #f7768e">2</span></span><span style="color: #7a82ad">⌃5</span></a>
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; border-left: 2px solid transparent"><span>workflows</span><span style="color: #7a82ad">⌃6</span></a>
+</nav>
+<div style="padding: 12px 18px 6px; font-size: 11px; color: #7a82ad; text-transform: uppercase; letter-spacing: 1px">agents</div>
+<div style="display: flex; flex-direction: column; gap: 2px; padding: 0 8px">
+<div style="display: flex; gap: 8px; padding: 5px 10px"><span style="color: #9ece6a">●</span><span>rivet</span><span style="margin-left: auto; color: #7a82ad">claude</span></div>
+<div style="display: flex; gap: 8px; padding: 5px 10px"><span style="color: #ff9e64">●</span><span>forge</span><span style="margin-left: auto; color: #7a82ad">opencode</span></div>
+<div style="display: flex; gap: 8px; padding: 5px 10px"><span style="color: #7a82ad">○</span><span style="color: #7a82ad">scout</span><span style="margin-left: auto; color: #7a82ad">idle</span></div>
+</div>
+<div style="margin-top: auto; border-top: 1px solid #2f3549; padding: 8px">
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none"><span>settings</span><span style="color: #7a82ad">⌃,</span></a>
+<button type="button" style="width: 100%; display: flex; justify-content: space-between; margin-top: 4px; padding: 8px 10px; background: #1a1b26; color: #c0caf5; border: 1px solid #2f3549; text-align: left"><span>den-01 <span style="color: #7a82ad">· local</span></span><span style="color: #7a82ad">▾</span></button>
+</div>
+</aside>
+
+<!-- tile: chat (focused) -->
+<main style="display: flex; flex-direction: column; min-height: 0; background: #16161e; border: 2px solid #7aa2f7">
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid #2f3549">
+<span style="color: #7a82ad">~/conversations/</span><span style="font-weight: 700; margin-left: -12px">compaction-stall</span>
+<div style="margin-left: auto; display: flex; gap: 6px">
+<button type="button" style="border: 1px solid #2f3549; background: #1a1b26; color: #c0caf5; padding: 3px 10px">model <span style="color: #bb9af7">opus</span></button>
+<button type="button" style="border: 1px solid #2f3549; background: #1a1b26; color: #c0caf5; padding: 3px 10px">effort <span style="color: #ff9e64">high</span></button>
+<button type="button" style="border: 1px solid #2f3549; background: #1a1b26; color: #c0caf5; padding: 3px 10px">node <span style="color: #9ece6a">den-01</span></button>
+</div>
+</div>
+
+<div style="flex-grow: 1; min-height: 0; overflow: hidden; padding: 20px 28px; display: flex; flex-direction: column; gap: 22px">
+<div>
+<div style="color: #7aa2f7; font-weight: 700">you ›</div>
+<div style="margin-top: 4px">The compaction worker stopped summarizing around 3am. Can you find out why and whether we lost anything?</div>
+</div>
+
+<div>
+<div style="color: #bb9af7; font-weight: 700">rivet ›</div>
+<div style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; gap: 10px; padding: 6px 10px; background: #1a1b26; border: 1px solid #2f3549"><span style="color: #9ece6a">✓</span><span>memory_search</span><span style="color: #7a82ad">"compaction worker stall"</span><span style="margin-left: auto; color: #7a82ad">12 hits</span></div>
+<div style="display: flex; gap: 10px; padding: 6px 10px; background: #1a1b26; border: 1px solid #2f3549"><span style="color: #9ece6a">✓</span><span>shell</span><span style="color: #7a82ad">journalctl -u compaction-worker --since 02:30</span></div>
+</div>
+<p style="margin: 12px 0 0">The worker hit a lock timeout on <span style="color: #7dcfff">messages_summary_lock</span> at 02:58 and never retried — the backoff loop exits after the first failure. Nothing was lost: the 412 unsummarized rows are still eligible and will be picked up on the next run.</p>
+<pre style="margin: 12px 0 0; padding: 12px 14px; background: #1a1b26; border: 1px solid #2f3549; font-family: inherit; font-size: 12px; line-height: 1.6; overflow: hidden"><span style="color: #7a82ad">services/compaction-worker/src/loop.ts</span>
+<span style="color: #f7768e">-  if (err) return</span>
+<span style="color: #9ece6a">+  if (err) { await backoff(attempt++); continue }</span></pre>
+<p style="margin: 12px 0 0">Want me to open a PR with this fix?</p>
+</div>
+</div>
+
+<form style="margin: 0 16px 16px; border: 1px solid #2f3549; background: #1a1b26">
+<label for="tiled-composer" class="sr">Message rivet</label>
+<div style="display: flex; gap: 10px; padding: 12px 14px 4px">
+<span style="color: #7aa2f7; font-weight: 700">❯</span>
+<textarea id="tiled-composer" rows="2" placeholder="message rivet — / for commands, @ for files" style="flex-grow: 1; resize: none; border: 0; outline: none; background: transparent; color: #c0caf5; padding: 0"></textarea>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 6px 10px 8px 14px; font-size: 11px; color: #7a82ad">
+<span>⏎ send</span><span>⇧⏎ newline</span><span>⌃k palette</span>
+<button type="submit" style="margin-left: auto; min-height: 30px; padding: 4px 16px; border: 0; background: #7aa2f7; color: #1a1b26; font-weight: 700">send</button>
+</div>
+</form>
+</main>
+
+<!-- right column: two stacked tiles -->
+<div style="display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 10px; min-height: 0">
+<section aria-label="Context" style="background: #16161e; border: 2px solid #2f3549; padding: 14px 16px">
+<div style="display: flex; justify-content: space-between; font-size: 11px; color: #7a82ad; text-transform: uppercase; letter-spacing: 1px"><span>context</span><span>41%</span></div>
+<div style="margin-top: 8px; height: 6px; background: #1a1b26"><div style="width: 41%; height: 6px; background: #7aa2f7"></div></div>
+<div style="margin-top: 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; font-size: 12px">
+<div><div style="color: #7a82ad">harness</div><div>claude-code</div></div>
+<div><div style="color: #7a82ad">cwd</div><div>~/rivetOS</div></div>
+<div><div style="color: #7a82ad">branch</div><div style="color: #9ece6a">main</div></div>
+<div><div style="color: #7a82ad">session</div><div>3h 12m</div></div>
+</div>
+</section>
+<section aria-label="Tasks" style="display: flex; flex-direction: column; min-height: 0; background: #16161e; border: 2px solid #2f3549">
+<div style="padding: 14px 16px 8px; font-size: 11px; color: #7a82ad; text-transform: uppercase; letter-spacing: 1px">tasks</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; gap: 10px; padding: 9px 16px; border-top: 1px solid #2f3549"><span style="color: #f7768e">!</span><div><div>Approve: push fix/compaction-backoff</div><div style="font-size: 11px; color: #7a82ad">forge · 2m ago</div></div></div>
+<div style="display: flex; gap: 10px; padding: 9px 16px; border-top: 1px solid #2f3549"><span style="color: #f7768e">!</span><div><div>Question: embed old sessions too?</div><div style="font-size: 11px; color: #7a82ad">scout · 18m ago</div></div></div>
+<div style="display: flex; gap: 10px; padding: 9px 16px; border-top: 1px solid #2f3549"><span style="color: #9ece6a">✓</span><div><div>Nightly memory backup</div><div style="font-size: 11px; color: #7a82ad">workflow · 04:00</div></div></div>
+<div style="display: flex; gap: 10px; padding: 9px 16px; border-top: 1px solid #2f3549"><span style="color: #ff9e64">◐</span><div><div>Rebuild rivethub-web</div><div style="font-size: 11px; color: #7a82ad">forge · running</div></div></div>
+</div>
+</section>
+</div>
+
+</div>
+</div>
+</body></html>
