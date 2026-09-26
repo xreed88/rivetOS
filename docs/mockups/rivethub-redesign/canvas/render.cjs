@@ -17,6 +17,8 @@ const jobs=[
  ['Colorways.dc.html','logos/logos-colorways',{},1040],
  ['Weave.dc.html','logos/logos-weave',{},960],
  ['Weave.dc.html','logos/logos-weave-green',{accent:'#34d399'},960],
+ ['WeaveOmarchy.dc.html','logos/logos-weave-omarchy',{},960],
+ ['WeaveOmarchy.dc.html','logos/logos-weave-omarchy-gruvbox',{ink:'#ebdbb2',accent:'#fabd2f'},960],
 ];
 function get(o,p){return p.split('.').reduce((a,k)=>a==null?a:a[k],o)}
 function build(src,props){
