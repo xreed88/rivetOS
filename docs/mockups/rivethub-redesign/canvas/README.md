@@ -12,6 +12,7 @@ https://claude.ai/artifact/D4FaRKwGZqFQAtTt4u63Qx
 | `Synthwave.dc.html` | C · Synthwave '84                                               |
 | `Logos.dc.html`     | Logo options: Hub, Tile, Join                                   |
 | `Colorways.dc.html` | Logos in green, orange and red                                  |
+| `Weave.dc.html`     | Three "weave" variations of the Tile logo                       |
 | `render.cjs`        | Turns the artboards into the static HTML and PNGs one folder up |
 
 Each `.dc.html` is a Design Component: normal HTML, plus `{{holes}}` filled
