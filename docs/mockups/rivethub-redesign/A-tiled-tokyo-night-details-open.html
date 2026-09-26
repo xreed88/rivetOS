@@ -28,7 +28,7 @@ textarea{font:inherit}
 </header>
 
 <!-- dwindle tiles -->
-<div style="flex-grow: 1; min-height: 0; display: grid; grid-template-columns: 232px minmax(0, 1fr); gap: 10px; padding: 10px">
+<div style="flex-grow: 1; min-height: 0; display: grid; grid-template-columns: 232px minmax(0, 1fr) 300px; gap: 10px; padding: 10px">
 
 <!-- tile: rail -->
 <aside style="display: flex; flex-direction: column; min-height: 0; background: #16161e; border: 2px solid #2f3549">
@@ -64,10 +64,10 @@ textarea{font:inherit}
 <button type="button" style="border: 1px solid #2f3549; background: #1a1b26; color: #c0caf5; padding: 3px 10px">model <span style="color: #bb9af7">opus</span></button>
 <button type="button" style="border: 1px solid #2f3549; background: #1a1b26; color: #c0caf5; padding: 3px 10px">effort <span style="color: #ff9e64">high</span></button>
 <button type="button" style="border: 1px solid #2f3549; background: #1a1b26; color: #c0caf5; padding: 3px 10px">node <span style="color: #9ece6a">den-01</span></button>
-<button type="button" onClick="() => this.setState({ open: !open })" aria-expanded="false" aria-controls="tiled-details" title="82k / 200k · compacts at 165k" style="display: flex; align-items: center; gap: 8px; margin-left: 6px; border: 1px solid #2f3549; background: #1a1b26; color: #c0caf5; padding: 3px 10px">
+<button type="button" onClick="() => this.setState({ open: !open })" aria-expanded="true" aria-controls="tiled-details" title="82k / 200k · compacts at 165k" style="display: flex; align-items: center; gap: 8px; margin-left: 6px; border: 1px solid #7aa2f7; background: #24283b; color: #c0caf5; padding: 3px 10px">
 <span style="display: inline-block; width: 44px; height: 5px; background: #24283b"><span style="display: block; width: 50%; height: 5px; background: #7aa2f7"></span></span>
 <span>50%</span>
-<span style="color: #7a82ad">◂</span>
+<span style="color: #7a82ad">▸</span>
 </button>
 </div>
 </div>
@@ -106,6 +106,29 @@ textarea{font:inherit}
 </main>
 
 <!-- details tile: only exists while toggled open (Hyprland-style split) -->
+
+<aside id="tiled-details" aria-label="Session details" style="display: flex; flex-direction: column; min-height: 0; background: #16161e; border: 2px solid #2f3549">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid #2f3549">
+<span style="font-size: 11px; color: #7a82ad; text-transform: uppercase; letter-spacing: 1px">details</span>
+<button type="button" onClick="() => this.setState({ open: !open })" aria-label="Close details" style="border: 0; background: transparent; color: #7a82ad; padding: 2px 6px">✕</button>
+</div>
+<section style="padding: 14px">
+<div style="display: flex; justify-content: space-between; font-size: 12px"><span>context</span><span>82k / 200k</span></div>
+<div style="margin-top: 8px; height: 6px; background: #1a1b26"><div style="width: 50%; height: 6px; background: #7aa2f7"></div></div>
+<div style="margin-top: 6px; font-size: 11px; color: #7a82ad">compacts at 165k · amber at 70%, red at 90%</div>
+<div style="margin-top: 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; font-size: 12px">
+<div><div style="color: #7a82ad">harness</div><div>claude-code</div></div>
+<div><div style="color: #7a82ad">model</div><div>opus · high</div></div>
+<div><div style="color: #7a82ad">node</div><div style="color: #9ece6a">den-01</div></div>
+<div><div style="color: #7a82ad">cwd</div><div>~/rivetOS</div></div>
+</div>
+</section>
+<section style="border-top: 1px solid #2f3549">
+<div style="padding: 12px 14px 6px; font-size: 11px; color: #7a82ad; text-transform: uppercase; letter-spacing: 1px">needs you</div>
+<a href="#" style="display: flex; gap: 10px; padding: 8px 14px; text-decoration: none"><span style="color: #f7768e">!</span><div><div>Approve: push fix/compaction-backoff</div><div style="font-size: 11px; color: #7a82ad">forge · 2m ago</div></div></a>
+<a href="#" style="display: flex; gap: 10px; padding: 8px 14px; text-decoration: none"><span style="color: #f7768e">!</span><div><div>Question: embed old sessions too?</div><div style="font-size: 11px; color: #7a82ad">scout · 18m ago</div></div></a>
+</section>
+</aside>
 
 
 </div>
