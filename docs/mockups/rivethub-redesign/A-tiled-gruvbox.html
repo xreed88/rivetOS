@@ -30,10 +30,14 @@ textarea{font:inherit}
 <!-- dwindle tiles -->
 <div style="flex-grow: 1; min-height: 0; display: grid; grid-template-columns: 232px minmax(0, 1fr); gap: 10px; padding: 10px">
 
-<!-- tile: rail -->
+<!-- tile: rail (expanded / collapsed) -->
+
 <aside style="display: flex; flex-direction: column; min-height: 0; background: #1d2021; border: 2px solid #504945">
 <div style="padding: 16px 16px 14px; border-bottom: 1px solid #504945">
+<div style="display: flex; align-items: center; gap: 10px">
+<button type="button" onClick="() => this.setState({ railC: !railC })" aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar" style="display: flex; border: 0; background: transparent; padding: 0"><svg viewBox="-1 -1 17 17" width="26" height="26" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="0" width="1" height="1" fill="#fabd2f"></rect><rect x="10" y="0" width="1" height="1" fill="#fabd2f"></rect><rect x="3" y="1" width="3" height="1" fill="#fabd2f"></rect><rect x="9" y="1" width="3" height="1" fill="#fabd2f"></rect><rect x="3" y="2" width="3" height="1" fill="#fabd2f"></rect><rect x="1" y="3" width="1" height="1" fill="#fabd2f"></rect><rect x="3" y="3" width="3" height="1" fill="#fabd2f"></rect><rect x="7" y="3" width="7" height="1" fill="#fabd2f"></rect><rect x="0" y="4" width="2" height="1" fill="#fabd2f"></rect><rect x="3" y="4" width="3" height="1" fill="#fabd2f"></rect><rect x="7" y="4" width="8" height="1" fill="#fabd2f"></rect><rect x="1" y="5" width="1" height="1" fill="#fabd2f"></rect><rect x="3" y="5" width="3" height="1" fill="#fabd2f"></rect><rect x="7" y="5" width="7" height="1" fill="#fabd2f"></rect><rect x="3" y="6" width="3" height="1" fill="#fabd2f"></rect><rect x="3" y="7" width="3" height="1" fill="#fabd2f"></rect><rect x="7" y="7" width="1" height="1" fill="#fabd2f"></rect><rect x="9" y="7" width="3" height="1" fill="#fabd2f"></rect><rect x="9" y="8" width="3" height="1" fill="#fabd2f"></rect><rect x="1" y="9" width="7" height="1" fill="#fabd2f"></rect><rect x="9" y="9" width="3" height="1" fill="#fabd2f"></rect><rect x="13" y="9" width="1" height="1" fill="#fabd2f"></rect><rect x="0" y="10" width="8" height="1" fill="#fabd2f"></rect><rect x="9" y="10" width="3" height="1" fill="#fabd2f"></rect><rect x="13" y="10" width="2" height="1" fill="#fabd2f"></rect><rect x="1" y="11" width="7" height="1" fill="#fabd2f"></rect><rect x="9" y="11" width="3" height="1" fill="#fabd2f"></rect><rect x="13" y="11" width="1" height="1" fill="#fabd2f"></rect><rect x="9" y="12" width="3" height="1" fill="#fabd2f"></rect><rect x="3" y="13" width="3" height="1" fill="#fabd2f"></rect><rect x="9" y="13" width="3" height="1" fill="#fabd2f"></rect><rect x="4" y="14" width="1" height="1" fill="#fabd2f"></rect><rect x="10" y="14" width="1" height="1" fill="#fabd2f"></rect></svg></button>
 <div style="font-size: 22px; font-weight: 800; letter-spacing: -0.5px; line-height: 1"><span style="color: #fabd2f">rivet</span><span style="color: #a89984">hub</span></div>
+</div>
 <div style="margin-top: 6px; font-size: 11px; color: #a89984">v0.4.0-beta.6</div>
 </div>
 <nav aria-label="Main" style="display: flex; flex-direction: column; padding: 8px">
@@ -55,6 +59,8 @@ textarea{font:inherit}
 <button type="button" style="width: 100%; display: flex; justify-content: space-between; margin-top: 4px; padding: 8px 10px; background: #282828; color: #ebdbb2; border: 1px solid #504945; text-align: left"><span>den-01 <span style="color: #a89984">· local</span></span><span style="color: #a89984">▾</span></button>
 </div>
 </aside>
+
+
 
 <!-- tile: chat (focused) -->
 <main style="display: flex; flex-direction: column; min-height: 0; background: #1d2021; border: 2px solid #fabd2f">

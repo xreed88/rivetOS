@@ -8,6 +8,10 @@ const jobs=[
  ['Main.dc.html','A-tiled-tokyo-night',{}],
  ['Main.dc.html','A-tiled-tokyo-night-details-open',{detailsOpen:true}],
  ['Main.dc.html','A-tiled-gruvbox',{theme:'gruvbox'}],
+ ['Main.dc.html','A-tiled-rail-loom',{railCollapsed:true,mark:'loom'}],
+ ['Main.dc.html','A-tiled-rail-hub',{railCollapsed:true,mark:'hub'}],
+ ['Main.dc.html','A-tiled-expanded-loom',{mark:'loom'}],
+ ['Main.dc.html','A-tiled-expanded-hub',{mark:'hub'}],
  ['Waybar.dc.html','B-bar-first-catppuccin',{}],
  ['Waybar.dc.html','B-bar-first-latte',{theme:'catppuccin-latte'}],
  ['Synthwave.dc.html','C-synthwave',{}],
@@ -29,7 +33,9 @@ function build(src,props){
   const Component=new Function('DCLogic',script+';return Component')(class{});
   const c=new Component(); c.props=props; const v=c.renderVals();
   body=body.replace(/<sc-for list="\{\{\s*(\w+)\s*\}\}" as="(\w+)"[^>]*>([\s\S]*?)<\/sc-for>/g,(m,k,as,inner)=>v[k].map(it=>inner.replace(new RegExp('\\{\\{\\s*'+as+'\\.(\\w+)\\s*\\}\\}','g'),(mm,f)=>String(it[f]))).join(''));
-  body=body.replace(/<sc-if value="\{\{\s*(\w+)\s*\}\}"[^>]*>([\s\S]*?)<\/sc-if>/g,(m,k,inner)=>v[k]?inner:'');
+  // innermost first, so nested sc-if blocks resolve correctly
+  const scIf=/<sc-if value="\{\{\s*(\w+)\s*\}\}"[^>]*>((?:(?!<sc-if)[\s\S])*?)<\/sc-if>/g;
+  while(scIf.test(body)){scIf.lastIndex=0;body=body.replace(scIf,(m,k,inner)=>v[k]?inner:'');}
   body=body.replace(/\{\{\s*([\w.]+)\s*\}\}/g,(m,p)=>{const r=get(v,p);return r==null?'':String(r).replace(/"/g,'&quot;')});
   return `<!doctype html><html><head><meta charset="utf-8">${helmet}</head><body>${body}</body></html>`;
 }
