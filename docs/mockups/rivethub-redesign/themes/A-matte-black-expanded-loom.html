@@ -1,0 +1,119 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&amp;family=Fira+Code:wght@400;500;700&amp;family=IBM+Plex+Mono:wght@400;500;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit}
+button{font:inherit;cursor:pointer}
+textarea{font:inherit}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</head><body>
+
+<div style="width: 1440px; height: 900px; box-sizing: border-box; display: flex; flex-direction: column; background: #121212; color: #bebebe; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; line-height: 1.55">
+
+<!-- waybar-style top strip -->
+<header style="height: 30px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; padding: 0 12px; background: #0b0b0b; border-bottom: 1px solid #2a2a2a; font-size: 12px">
+<nav aria-label="Workspaces" style="display: flex; gap: 2px">
+<button type="button" style="border: 0; background: #e68e0d; color: #121212; padding: 2px 9px; font-weight: 700">1</button>
+<button type="button" style="border: 0; background: transparent; color: #8a8a8d; padding: 2px 9px">2</button>
+<button type="button" style="border: 0; background: transparent; color: #8a8a8d; padding: 2px 9px">3</button>
+<button type="button" style="border: 0; background: transparent; color: #8a8a8d; padding: 2px 9px">4</button>
+</nav>
+<span style="color: #8a8a8d">chat · sessions · memory · files</span>
+<span style="margin-left: auto; color: #8a8a8d">theme <span style="color: #bebebe">matte-black</span></span>
+<a href="#" style="text-decoration: none; color: #d35f5f">! 2 need you</a>
+<span style="color: #a3be8c">● den-01</span>
+<span style="color: #bebebe">Sat 14:32</span>
+</header>
+
+<!-- dwindle tiles -->
+<div style="flex-grow: 1; min-height: 0; display: grid; grid-template-columns: 232px minmax(0, 1fr); gap: 10px; padding: 10px">
+
+<!-- tile: rail (expanded / collapsed) -->
+
+<aside style="display: flex; flex-direction: column; min-height: 0; background: #0b0b0b; border: 2px solid #2a2a2a">
+<div style="padding: 16px 16px 14px; border-bottom: 1px solid #2a2a2a">
+<div style="display: flex; align-items: center; gap: 10px">
+<button type="button" onClick="() => this.setState({ railC: !railC })" aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar" style="display: flex; border: 0; background: transparent; padding: 0"><svg viewBox="-1 -1 17 17" width="26" height="26" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="0" width="1" height="1" fill="#e68e0d"></rect><rect x="10" y="0" width="1" height="1" fill="#e68e0d"></rect><rect x="3" y="1" width="3" height="1" fill="#e68e0d"></rect><rect x="9" y="1" width="3" height="1" fill="#e68e0d"></rect><rect x="3" y="2" width="3" height="1" fill="#e68e0d"></rect><rect x="1" y="3" width="1" height="1" fill="#e68e0d"></rect><rect x="3" y="3" width="3" height="1" fill="#e68e0d"></rect><rect x="7" y="3" width="7" height="1" fill="#e68e0d"></rect><rect x="0" y="4" width="2" height="1" fill="#e68e0d"></rect><rect x="3" y="4" width="3" height="1" fill="#e68e0d"></rect><rect x="7" y="4" width="8" height="1" fill="#e68e0d"></rect><rect x="1" y="5" width="1" height="1" fill="#e68e0d"></rect><rect x="3" y="5" width="3" height="1" fill="#e68e0d"></rect><rect x="7" y="5" width="7" height="1" fill="#e68e0d"></rect><rect x="3" y="6" width="3" height="1" fill="#e68e0d"></rect><rect x="3" y="7" width="3" height="1" fill="#e68e0d"></rect><rect x="7" y="7" width="1" height="1" fill="#e68e0d"></rect><rect x="9" y="7" width="3" height="1" fill="#e68e0d"></rect><rect x="9" y="8" width="3" height="1" fill="#e68e0d"></rect><rect x="1" y="9" width="7" height="1" fill="#e68e0d"></rect><rect x="9" y="9" width="3" height="1" fill="#e68e0d"></rect><rect x="13" y="9" width="1" height="1" fill="#e68e0d"></rect><rect x="0" y="10" width="8" height="1" fill="#e68e0d"></rect><rect x="9" y="10" width="3" height="1" fill="#e68e0d"></rect><rect x="13" y="10" width="2" height="1" fill="#e68e0d"></rect><rect x="1" y="11" width="7" height="1" fill="#e68e0d"></rect><rect x="9" y="11" width="3" height="1" fill="#e68e0d"></rect><rect x="13" y="11" width="1" height="1" fill="#e68e0d"></rect><rect x="9" y="12" width="3" height="1" fill="#e68e0d"></rect><rect x="3" y="13" width="3" height="1" fill="#e68e0d"></rect><rect x="9" y="13" width="3" height="1" fill="#e68e0d"></rect><rect x="4" y="14" width="1" height="1" fill="#e68e0d"></rect><rect x="10" y="14" width="1" height="1" fill="#e68e0d"></rect></svg></button>
+<div style="font-size: 22px; font-weight: 800; letter-spacing: -0.5px; line-height: 1"><span style="color: #e68e0d">rivet</span><span style="color: #8a8a8d">hub</span></div>
+</div>
+<div style="margin-top: 6px; font-size: 11px; color: #8a8a8d">v0.4.0-beta.6</div>
+</div>
+<nav aria-label="Main" style="display: flex; flex-direction: column; padding: 8px">
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; background: #1c1c1c; color: #e68e0d; border-left: 2px solid #e68e0d"><span>conversations</span><span style="color: #8a8a8d">⌃1</span></a>
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; border-left: 2px solid transparent"><span>sessions</span><span style="color: #8a8a8d">⌃2</span></a>
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; border-left: 2px solid transparent"><span>memory</span><span style="color: #8a8a8d">⌃3</span></a>
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; border-left: 2px solid transparent"><span>files</span><span style="color: #8a8a8d">⌃4</span></a>
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; border-left: 2px solid transparent"><span>tasks <span style="color: #d35f5f">2</span></span><span style="color: #8a8a8d">⌃5</span></a>
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none; border-left: 2px solid transparent"><span>workflows</span><span style="color: #8a8a8d">⌃6</span></a>
+</nav>
+<div style="padding: 12px 18px 6px; font-size: 11px; color: #8a8a8d; text-transform: uppercase; letter-spacing: 1px">agents</div>
+<div style="display: flex; flex-direction: column; gap: 2px; padding: 0 8px">
+<div style="display: flex; gap: 8px; padding: 5px 10px"><span style="color: #a3be8c">●</span><span>rivet</span><span style="margin-left: auto; color: #8a8a8d">claude</span></div>
+<div style="display: flex; gap: 8px; padding: 5px 10px"><span style="color: #f59e0b">●</span><span>forge</span><span style="margin-left: auto; color: #8a8a8d">opencode</span></div>
+<div style="display: flex; gap: 8px; padding: 5px 10px"><span style="color: #8a8a8d">○</span><span style="color: #8a8a8d">scout</span><span style="margin-left: auto; color: #8a8a8d">idle</span></div>
+</div>
+<div style="margin-top: auto; border-top: 1px solid #2a2a2a; padding: 8px">
+<a href="#" style="display: flex; justify-content: space-between; padding: 7px 10px; text-decoration: none"><span>settings</span><span style="color: #8a8a8d">⌃,</span></a>
+<button type="button" style="width: 100%; display: flex; justify-content: space-between; margin-top: 4px; padding: 8px 10px; background: #121212; color: #bebebe; border: 1px solid #2a2a2a; text-align: left"><span>den-01 <span style="color: #8a8a8d">· local</span></span><span style="color: #8a8a8d">▾</span></button>
+</div>
+</aside>
+
+
+
+<!-- tile: chat (focused) -->
+<main style="display: flex; flex-direction: column; min-height: 0; background: #0b0b0b; border: 2px solid #e68e0d">
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid #2a2a2a">
+<span style="color: #8a8a8d">~/conversations/</span><span style="font-weight: 700; margin-left: -12px">compaction-stall</span>
+<div style="margin-left: auto; display: flex; align-items: center; gap: 6px">
+<button type="button" style="border: 1px solid #2a2a2a; background: #121212; color: #bebebe; padding: 3px 10px">model <span style="color: #c49ec4">opus</span></button>
+<button type="button" style="border: 1px solid #2a2a2a; background: #121212; color: #bebebe; padding: 3px 10px">effort <span style="color: #f59e0b">high</span></button>
+<button type="button" style="border: 1px solid #2a2a2a; background: #121212; color: #bebebe; padding: 3px 10px">node <span style="color: #a3be8c">den-01</span></button>
+<button type="button" onClick="() => this.setState({ open: !open })" aria-expanded="false" aria-controls="tiled-details" title="82k / 200k · compacts at 165k" style="display: flex; align-items: center; gap: 8px; margin-left: 6px; border: 1px solid #2a2a2a; background: #121212; color: #bebebe; padding: 3px 10px">
+<span style="display: inline-block; width: 44px; height: 5px; background: #1c1c1c"><span style="display: block; width: 50%; height: 5px; background: #e68e0d"></span></span>
+<span>50%</span>
+<span style="color: #8a8a8d">◂</span>
+</button>
+</div>
+</div>
+
+<div style="flex-grow: 1; min-height: 0; overflow: hidden; padding: 20px 28px; display: flex; flex-direction: column; gap: 22px">
+<div>
+<div style="color: #e68e0d; font-weight: 700">you ›</div>
+<div style="margin-top: 4px">The compaction worker stopped summarizing around 3am. Can you find out why and whether we lost anything?</div>
+</div>
+
+<div>
+<div style="color: #c49ec4; font-weight: 700">rivet ›</div>
+<div style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; gap: 10px; padding: 6px 10px; background: #121212; border: 1px solid #2a2a2a"><span style="color: #a3be8c">✓</span><span>memory_search</span><span style="color: #8a8a8d">"compaction worker stall"</span><span style="margin-left: auto; color: #8a8a8d">12 hits</span></div>
+<div style="display: flex; gap: 10px; padding: 6px 10px; background: #121212; border: 1px solid #2a2a2a"><span style="color: #a3be8c">✓</span><span>shell</span><span style="color: #8a8a8d">journalctl -u compaction-worker --since 02:30</span></div>
+</div>
+<p style="margin: 12px 0 0">The worker hit a lock timeout on <span style="color: #8fbcbb">messages_summary_lock</span> at 02:58 and never retried — the backoff loop exits after the first failure. Nothing was lost: the 412 unsummarized rows are still eligible and will be picked up on the next run.</p>
+<pre style="margin: 12px 0 0; padding: 12px 14px; background: #121212; border: 1px solid #2a2a2a; font-family: inherit; font-size: 12px; line-height: 1.6; overflow: hidden"><span style="color: #8a8a8d">services/compaction-worker/src/loop.ts</span>
+<span style="color: #d35f5f">-  if (err) return</span>
+<span style="color: #a3be8c">+  if (err) { await backoff(attempt++); continue }</span></pre>
+<p style="margin: 12px 0 0">Want me to open a PR with this fix?</p>
+</div>
+</div>
+
+<form style="margin: 0 16px 16px; border: 1px solid #2a2a2a; background: #121212">
+<label for="tiled-composer" class="sr">Message rivet</label>
+<div style="display: flex; gap: 10px; padding: 12px 14px 4px">
+<span style="color: #e68e0d; font-weight: 700">❯</span>
+<textarea id="tiled-composer" rows="2" placeholder="message rivet — / for commands, @ for files" style="flex-grow: 1; resize: none; border: 0; outline: none; background: transparent; color: #bebebe; padding: 0"></textarea>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 6px 10px 8px 14px; font-size: 11px; color: #8a8a8d">
+<span>⏎ send</span><span>⇧⏎ newline</span><span>⌃k palette</span>
+<button type="submit" style="margin-left: auto; min-height: 30px; padding: 4px 16px; border: 0; background: #e68e0d; color: #121212; font-weight: 700">send</button>
+</div>
+</form>
+</main>
+
+<!-- details tile: only exists while toggled open (Hyprland-style split) -->
+
+
+</div>
+</div>
+</body></html>
