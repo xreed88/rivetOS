@@ -15,6 +15,10 @@ sealed interface Screen {
         val effort: String = "",
         val agentId: String = "",
         val transport: String? = null,
+        /** Hub row kind was LEGACY (a TUI session the control plane does not own). */
+        val legacy: Boolean = false,
+        /** The row's roster command — decides chat vs terminal for a legacy row (#801). */
+        val command: String? = null,
     ) : Screen
     data object Gallery : Screen
     /** Native Memory wiki hub (drawer Memory row); the topic page pushes over it. */

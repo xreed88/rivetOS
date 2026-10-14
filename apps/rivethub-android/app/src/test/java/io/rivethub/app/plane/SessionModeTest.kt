@@ -41,4 +41,30 @@ class SessionModeTest {
         assertSame(modes, rekeySessionModes(modes, "", "b"))
         assertSame(modes, rekeySessionModes(modes, "a", "a"))
     }
+
+    @Test fun `control-plane rows and drafts never open on Terminal`() {
+        assertEquals(false, sessionOpensOnTerminal(legacy = false, command = null, registeredCommands = null))
+        assertEquals(false, sessionOpensOnTerminal(legacy = false, command = "bash", registeredCommands = setOf("claude")))
+    }
+
+    @Test fun `legacy row with a registered roster command opens on Chat`() {
+        assertEquals(false, sessionOpensOnTerminal(legacy = true, command = "claude", registeredCommands = setOf("claude", "codex")))
+    }
+
+    @Test fun `legacy TUI-only row opens on Terminal`() {
+        assertEquals(true, sessionOpensOnTerminal(legacy = true, command = "bash", registeredCommands = setOf("claude")))
+        assertEquals(true, sessionOpensOnTerminal(legacy = true, command = null, registeredCommands = setOf("claude")))
+        assertEquals(true, sessionOpensOnTerminal(legacy = true, command = " ", registeredCommands = setOf("claude")))
+    }
+
+    @Test fun `legacy row keeps the terminal fallback when the registry failed`() {
+        assertEquals(true, sessionOpensOnTerminal(legacy = true, command = "claude", registeredCommands = null))
+    }
+
+    @Test fun `bare non-draft keys are legacy, canonical ids and drafts are not`() {
+        assertEquals(true, isLegacySessionKey(flagged = false, draft = false, sessionKey = "den-room-7"))
+        assertEquals(false, isLegacySessionKey(flagged = false, draft = false, sessionKey = "codex:abc"))
+        assertEquals(false, isLegacySessionKey(flagged = false, draft = true, sessionKey = "6f1c0e3a"))
+        assertEquals(true, isLegacySessionKey(flagged = true, draft = false, sessionKey = "codex:abc"))
+    }
 }

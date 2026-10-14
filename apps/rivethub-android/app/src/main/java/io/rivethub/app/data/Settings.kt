@@ -31,6 +31,8 @@ data class Prefs(
     val desktopUrl: String = "",
     val themeMode: String = "system",
     val sessionModes: Map<String, String> = emptyMap(),
+    /** sessionId → per-turn model/effort override (plane/TurnPick.kt encodeTurnPick). */
+    val turnPicks: Map<String, String> = emptyMap(),
     val archived: Set<String> = emptySet(),
     val titleOverrides: Map<String, String> = emptyMap(),
     val agentPointers: Map<String, String> = emptyMap(),
@@ -66,6 +68,7 @@ class Settings(context: Context) {
             desktopUrl = p[DESKTOP_URL] ?: "",
             themeMode = p[THEME] ?: "system",
             sessionModes = decodeMap(p[SESSION_MODES]),
+            turnPicks = decodeMap(p[TURN_PICKS]),
             archived = p[ARCHIVED] ?: emptySet(),
             titleOverrides = decodeMap(p[TITLES]),
             agentPointers = decodeMap(p[POINTERS]),
@@ -120,6 +123,19 @@ class Settings(context: Context) {
         it[SESSION_MODES] = encodeMap(next)
     }
 
+    /** Per-turn model/effort override; null removes it. */
+    suspend fun setTurnPick(sessionId: String, encoded: String?) = ds.edit {
+        val cur = decodeMap(it[TURN_PICKS])
+        it[TURN_PICKS] = encodeMap(if (encoded == null) cur - sessionId else cur + (sessionId to encoded))
+    }
+    /** Draft → canonical: the pick follows the thread; an existing canonical entry wins. */
+    suspend fun rekeyTurnPick(from: String, to: String) = ds.edit {
+        val cur = decodeMap(it[TURN_PICKS])
+        val moved = cur[from] ?: return@edit
+        val next = if (cur[to] != null) cur - from else cur - from + (to to moved)
+        it[TURN_PICKS] = encodeMap(next)
+    }
+
     suspend fun setArchived(keys: Set<String>) = ds.edit { it[ARCHIVED] = keys }
     suspend fun archive(key: String) = ds.edit { it[ARCHIVED] = (it[ARCHIVED] ?: emptySet()) + key }
     suspend fun unarchive(key: String) = ds.edit { it[ARCHIVED] = (it[ARCHIVED] ?: emptySet()) - key }
@@ -149,6 +165,7 @@ class Settings(context: Context) {
         private val DESKTOP_URL = stringPreferencesKey("desktopUrl")
         private val THEME = stringPreferencesKey("themeMode")
         private val SESSION_MODES = stringPreferencesKey("sessionModes")
+        private val TURN_PICKS = stringPreferencesKey("turnPicks")
         private val ARCHIVED = stringSetPreferencesKey("archived")
         private val TITLES = stringPreferencesKey("titleOverrides")
         private val POINTERS = stringPreferencesKey("agentPointers")

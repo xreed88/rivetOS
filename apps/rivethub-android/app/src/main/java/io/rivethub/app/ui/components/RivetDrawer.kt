@@ -97,6 +97,8 @@ fun RivetDrawerContent(
     onRemoveNode: (NodeSheetRow) -> Unit,
     onSaveDiscovered: (NodeSheetRow) -> Unit,
     exp: ExperimentalFlags = ExperimentalFlags(),
+    /** Single-node setup (plane/NodeSheet.kt shouldHideNodePickers): no footer switcher. */
+    nodePickerHidden: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val colors = RivetTheme.colors
@@ -154,14 +156,16 @@ fun RivetDrawerContent(
             Box(Modifier.padding(horizontal = 8.dp)) {
                 DrawerNavItem(DrawerDest.Settings, tab, onNav, exp)
             }
-            NodeSwitcherFooter(
-                currentName = currentNodeName,
-                open = nodeOpen,
-                onToggle = { nodeOpen = !nodeOpen },
-            )
+            if (!nodePickerHidden) {
+                NodeSwitcherFooter(
+                    currentName = currentNodeName,
+                    open = nodeOpen,
+                    onToggle = { nodeOpen = !nodeOpen },
+                )
+            }
         }
     }
-    if (nodeOpen) {
+    if (nodeOpen && !nodePickerHidden) {
         NodeSheet(
             model = nodeSheet,
             onDismiss = { nodeOpen = false },

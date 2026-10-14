@@ -177,7 +177,17 @@ fun HarnessChatScreen(
         HarnessChatViewModel.ERR_IMAGE_UNSUPPORTED -> stringResource(R.string.error_image_unsupported)
         else -> st.error
     }
-    val nativeModels = vm.nativeModels()
+    // Per-turn model/effort (#805): only on a protocol-owned conversation whose
+    // harness declares turnOptions. "" = the session's / harness's own default.
+    val turnOpts = vm.turnOptions()
+    val nativeModels = turnOpts.models
+    val sessionDefault = turnOpts.sessionDefaultLabel
+    val defaultModelLabel = if (sessionDefault != null) {
+        stringResource(R.string.turn_model_session_default, sessionDefault)
+    } else {
+        stringResource(R.string.turn_model_harness_default)
+    }
+    val defaultEffortLabel = stringResource(R.string.turn_effort_default)
     val nativeImages = vm.nativeImagesEnabled()
     val reconnecting = stringResource(R.string.ws_reconnecting_ellipsis)
 
@@ -263,12 +273,18 @@ fun HarnessChatScreen(
             )
             if (nativeModels.isNotEmpty()) {
                 NativeTurnControls(
-                    models = nativeModels.map { SelectOption(it.first, it.second) },
-                    model = st.model,
-                    onModel = vm::setModel,
-                    efforts = vm.effortOptions().map { SelectOption(it.first, it.second) },
-                    effort = st.effort,
-                    onEffort = vm::setEffort,
+                    models = listOf(SelectOption("", defaultModelLabel)) +
+                        nativeModels.map { SelectOption(it.id, it.label) },
+                    model = turnOpts.effectiveModel.orEmpty(),
+                    onModel = { vm.setTurnPick(it, turnOpts.effectiveEffort) },
+                    efforts = if (turnOpts.efforts.isEmpty()) {
+                        emptyList()
+                    } else {
+                        listOf(SelectOption("", defaultEffortLabel)) +
+                            turnOpts.efforts.map { SelectOption(it.id, it.label) }
+                    },
+                    effort = turnOpts.effectiveEffort.orEmpty(),
+                    onEffort = { vm.setTurnPick(turnOpts.effectiveModel, it) },
                     enabled = composerEnabled,
                 )
             }

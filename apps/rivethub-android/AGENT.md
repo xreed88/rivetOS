@@ -65,6 +65,14 @@ whose Conversations tab is the launch surface until the pick/new resolution open
 | Memory topic | `ui/screens/MemoryTopicScreen.kt` | same `MemoryViewModel` | Pushed over Memory (its slug in `Screen.MemoryTopic`); header = Back + title (session-row vocabulary, no TopBar); lead + `MarkdownBody` body (`wikiBody` = currentState else full file), collapsible full-width Contents from the parsed ##/### headings; 404 = the web red-link state. Back pops to the hub list |
 | Gallery | `ui/components/ComponentGallery.kt` | none | D1a chrome + D1b chat + D2 top bar/rows/settings rhythm (dark + light) |
 
+Single-node setup (#800/#813, `plane/NodeSheet.kt shouldHideNodePickers`): the drawer's node
+footer is hidden when the entry URL is the only saved node and the active view, while discovery is
+pending/failed (no flash), and once the mesh confirms no other peer; a discovered peer or a second
+saved node shows it again. A session with no remembered view opens on Chat, except a legacy TUI row
+whose roster command has no registered driver (or whose node's registry failed), which opens on
+Terminal (#801, `plane/SessionMode.kt sessionOpensOnTerminal`; `Screen.Chat.legacy`/`command`, bare
+non-draft keys count as legacy). An explicit switch always wins.
+
 Agents live in the drawer (tap / long-press ↺ / + pointer semantics; 2026-09-04 long-press
 also has Edit — `AgentEditSheet` name/color/node/model/effort/prompt via `PATCH
 /api/agents/{id}` — and Go to node, guarded so it never toggles the filter off). Nodes live in the
@@ -76,7 +84,8 @@ timeout/5xx only — 404 harness = plane-less, no badge). The drawer Memory row 
 entry, else pushes; Back returns to whatever is below).
 
 Prefs keys (DataStore `rivethub`): `entryUrl`, `strictHostnames`, `onboarded`, `themeMode`
-(`system`\|`light`\|`dark`), `sessionModes` (sessionId → `chat`\|`terminal`), `archived`,
+(`system`\|`light`\|`dark`), `sessionModes` (sessionId → `chat`\|`terminal`; written only by an
+explicit switch, so presence = user choice), `turnPicks` (sessionId → `harnessId\tmodel\teffort`), `archived`,
 `titleOverrides`, `agentPointers` (`sessionId\tnodeBaseUrl`), `terminalFontSp`, `viewNodeId`,
 `currentAgentId`, `agentsCollapsed`, `lastSessionKey` + `lastSessionNode` (instant-resume
 pointer, written on every chat open; drafts never written), `expFiles` / `expTasks` /
@@ -173,8 +182,15 @@ echo) is a no-op. Attachments are `[attached: uri]` lines after streaming
 `POST /api/uploads` on the session's node (1 GiB cap, den-server), except
 protocol-owned Codex sessions (`transport: protocol` + `imageAttachments`):
 those send staged PNG/JPEG/WebP/GIF as `UserTurn.attachments` with the
-catalog model/effort on the turn body. Native Model/Effort sit above the
-composer (web `chat.tsx` nativeModels row) and hide the spawn-flag pickers.
+explicit per-turn pick on the turn body. Per-turn Model/Effort (#805,
+`plane/TurnPick.kt` ← web `lib/conversation-model-options.ts`) sit above the
+composer and hide the spawn-flag pickers: offered only when ownership is
+settled-true (summary + registry loaded, gate bound, `transport: protocol`)
+and the sheet has `turnOptions`; the first option is "" = "Session default
+(X)" / "Harness default" and sends nothing. The pick is persisted per
+conversation (`turnPicks` pref, rekeyed with `sessionModes` on adopt), never
+feeds spawn flags, and is cleared when the harness changes, ownership settles
+false, or the settled sheet stops offering it — unknown ownership keeps it.
 A failed attachment chip blocks send on **every** session, PTY included
 (parity with web `composer.tsx`); remove the chip to retry. Gallery pick
 and share (`ACTION_SEND` / `ACTION_SEND_MULTIPLE` `image/*`) land on the
@@ -230,8 +246,11 @@ is the detach.
 - Build host: the fleet's Android build box (JDK 21 + SDK 37 + warm Gradle cache) — host names and
   paths are ops notes in Rivet's memory, not here. `./gradlew :app:assembleDebug :app:testDebugUnitTest`.
   Full-suite test counts only — a `--tests` filter can match nothing and still print green; CI
-  (`.github/workflows/android.yml`) enforces a floor of 532 (codex harness wiring: +6
-  `@Test` on the 526-floor tree; FLOOR = estimated real count − 1).
+  (`.github/workflows/android.yml`) enforces a floor of 554 (desktop-parity slice: +22
+  `@Test` on the 532-floor tree; FLOOR = estimated real count − 1).
+- No SDK on the box? The android-free core (`gateway/`, `transport/`, `plane/` + their tests) builds
+  as a plain Kotlin/JVM Gradle project with those three dirs as sources — a fast compile+test loop
+  for plane logic. The full suite and anything under `ui/`/`data/` still need the SDK (or CI).
 - Nx targets in `project.json`: `check` → `:app:testDebugUnitTest`, `apk` → `:app:assembleDebug`,
   `verify` → dependsOn check+apk (command `true`), `lint-android` → `:app:lintDebug`. There are no
   nx `build` / `test` / `lint` targets on purpose — Gradle owns those, and the SDK-less monorepo
@@ -253,6 +272,23 @@ is the detach.
   Canonical ids contain `:`; harness routes take unpadded base64url of the canonical id.
 - `/api/notifications/ws` = escalations/gates; turn-complete arrives on the harness-session WS.
 - "Open in your terminal" renders the server's `attach` descriptor; never compose the tmux command.
+
+## Desktop parity backlog (rivethub-web since 2026-09-15)
+
+Done here: #800/#813 single-node node footer, #805 per-turn model picker, #801 legacy → Terminal.
+Not applicable: #820 composer autofocus (web skips touch devices — a tap must not raise the
+keyboard); #804/#799 bubble retirement / rekey (Android only bubbles the in-flight send, reverts it
+on a hard failure and keeps queued sends in `QueuedStrip`, so there is no failed twin to mis-retire;
+the pump lives in the VM and follows adopt); #818 paste-wrapper strip is den-side.
+Open:
+- #802 agent copy: when an agent's own node is unreachable, Edit pre-fills a create on a reachable
+  node (validated against that node's sheet) instead of failing; the original stays put. Port
+  `lib/agent-copy.ts` to `plane/AgentEdit.kt` + `AgentEditSheet`.
+- #784 session pages: a sessions route (`lib/session-list.ts`, `session-route-id.ts`,
+  `session-transcript.ts`, `session-sync-log.ts`, `pages/sessions.tsx`) with a visible reconnect
+  resync log. Phone shape TBD — likely a pushed screen from the drawer, like Memory.
+- #800 composer node chip: web hides the composer NodePicker too; the phone's chip is read-only
+  (one option), so it was left as is — hide it in single-node setups if it reads as clutter.
 
 ## Gotchas
 

@@ -282,6 +282,8 @@ fun App(
                 effort = row.item.effort.orEmpty(),
                 agentId = hubVm.agentForSession(row.item.key).orEmpty(),
                 transport = row.item.transport,
+                legacy = row.item.kind == ChatItemKind.LEGACY,
+                command = row.item.command,
             ),
             replaceAll,
         )
@@ -461,6 +463,8 @@ fun App(
                         presetModel = s.model, presetEffort = s.effort, initialTransport = s.transport,
                         openStream = openStream,
                         agentId = s.agentId,
+                        legacy = s.legacy,
+                        rowCommand = s.command,
                         onAdoptPointer = { from, canonical ->
                             hubVm.adoptChatPointer(s.agentId, from, canonical, s.nodeDenUrl)
                         },

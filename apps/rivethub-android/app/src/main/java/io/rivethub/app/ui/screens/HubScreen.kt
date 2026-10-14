@@ -51,6 +51,7 @@ import io.rivethub.app.plane.HubTab
 import io.rivethub.app.plane.LocatedChatItem
 import io.rivethub.app.plane.NodeSheetInput
 import io.rivethub.app.plane.buildNodeSheet
+import io.rivethub.app.plane.shouldHideNodePickers
 import io.rivethub.app.plane.ExperimentalFlags
 import io.rivethub.app.plane.decideDrawerSwipe
 import io.rivethub.app.plane.drawerOpensMemoryScreen
@@ -127,6 +128,18 @@ fun HubDrawer(
         ?: st.nodes.find { it.denUrl.trimEnd('/') == st.prefs.entryUrl.trim().trimEnd('/') }
         ?: st.nodes.firstOrNull()
     val currentName = currentNode?.name?.ifBlank { currentNode.id } ?: st.prefs.entryUrl.ifBlank { "—" }
+    // Mesh roster, or null while discovery is pending or failed (web mesh query status).
+    val meshNodeUrls = if (st.errorKind != null || (st.loading && st.nodes.isEmpty())) {
+        null
+    } else {
+        st.nodes.filter { it.fromMesh }.map { it.denUrl }
+    }
+    val nodePickerHidden = shouldHideNodePickers(
+        entryUrl = st.prefs.entryUrl,
+        extraUrls = st.prefs.extraNodes,
+        activeUrl = currentNode?.denUrl ?: st.prefs.entryUrl,
+        meshNodeUrls = meshNodeUrls,
+    )
 
     BoxWithConstraints(
         Modifier
@@ -147,6 +160,7 @@ fun HubDrawer(
                     agentsCollapsed = st.prefs.agentsCollapsed,
                     currentNodeName = currentName,
                     nodeSheet = nodeSheet,
+                    nodePickerHidden = nodePickerHidden,
                     exp = ExperimentalFlags(
                         files = st.prefs.expFiles,
                         tasks = st.prefs.expTasks,

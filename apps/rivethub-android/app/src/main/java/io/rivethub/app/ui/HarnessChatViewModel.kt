@@ -71,6 +71,14 @@ import io.rivethub.app.plane.nativeImageAttachments
 import io.rivethub.app.plane.nativeImageTurn
 import io.rivethub.app.plane.nativeTurnModels
 import io.rivethub.app.plane.optimisticUserText
+import io.rivethub.app.plane.ConversationTurnPick
+import io.rivethub.app.plane.TurnModelOptions
+import io.rivethub.app.plane.conversationModelOptions
+import io.rivethub.app.plane.conversationProtocolOwnership
+import io.rivethub.app.plane.decodeTurnPick
+import io.rivethub.app.plane.encodeTurnPick
+import io.rivethub.app.plane.isLegacySessionKey
+import io.rivethub.app.plane.sessionOpensOnTerminal
 import io.rivethub.app.plane.readyAttachments
 import io.rivethub.app.plane.reconcileSummaryControls
 import io.rivethub.app.plane.restoreQueuedComposer
@@ -130,6 +138,8 @@ class HarnessChatViewModel(
     private val initialTransport: String? = null,
     private val openStream: (Uri) -> java.io.InputStream? = { null },
     private val agentId: String = "",
+    private val legacy: Boolean = false,
+    private val rowCommand: String? = null,
     private val onAdoptPointer: ((from: String, canonical: String) -> Unit)? = null,
 ) : ViewModel() {
     data class UiState(
@@ -140,6 +150,14 @@ class HarnessChatViewModel(
         val model: String = "",
         val effort: String = "",
         val transport: String? = null,
+        /** Per-turn model/effort override (#805), persisted per conversation. Never a spawn flag. */
+        val turnPick: ConversationTurnPick? = null,
+        /** The session summary's own model — "Session default (X)" in the turn picker. */
+        val summaryModel: String? = null,
+        /** Boot's session-summary lookup settled (drafts settle immediately). */
+        val summaryReady: Boolean = false,
+        /** `listHarnesses` answered; false while loading or after it failed. */
+        val registryReady: Boolean = false,
         val nodeName: String,
         val nodeDenUrl: String,
         val turns: List<io.rivethub.app.gateway.HarnessTranscriptTurn> = emptyList(),
@@ -327,7 +345,11 @@ class HarnessChatViewModel(
     }
     fun setMoreOpen(v: Boolean) = _state.update { it.copy(moreOpen = v) }
 
+    /** An explicit Chat|Terminal switch this visit — an automatic fallback never overrides it. */
+    private var modeChosen = false
+
     fun setMode(mode: SessionMode) {
+        modeChosen = true
         _state.update { it.copy(mode = mode) }
         viewModelScope.launch { c.settings.setSessionMode(_state.value.sessionId, persistSessionMode(mode)) }
     }
@@ -357,7 +379,7 @@ class HarnessChatViewModel(
                 _state.update { it.copy(error = composerOnSendAttempt(), errorCode = ERR_IMAGE_ONLY) }
                 return
             }
-            val selected = st.sheet?.models?.find { it.id == st.model }
+            val selected = turnOptions().selectedModel ?: st.sheet?.models?.find { it.id == st.model }
             if (!modelAcceptsImage(selected)) {
                 _state.update { it.copy(error = composerOnSendAttempt(), errorCode = ERR_IMAGE_UNSUPPORTED) }
                 return
@@ -657,22 +679,41 @@ class HarnessChatViewModel(
     private suspend fun boot() {
         val prefs = c.settings.snapshot()
         val mode = parseSessionMode(prefs.sessionModes[_state.value.sessionId])
-        _state.update { it.copy(mode = mode, termFontSp = prefs.terminalFontSp) }
+        val turnPick = decodeTurnPick(prefs.turnPicks[_state.value.sessionId])
+        _state.update { it.copy(mode = mode, termFontSp = prefs.terminalFontSp, turnPick = turnPick) }
         if (c.identity.generation() != identityGen) return
         try {
             val hg = c.harness(nodeDenUrl)
-            val desc = withContext(Dispatchers.IO) { runCatching { hg.listHarnesses() }.getOrDefault(emptyList()) }
+            val descResult = withContext(Dispatchers.IO) { runCatching { hg.listHarnesses() } }
+            val desc = descResult.getOrDefault(emptyList())
             descriptors = desc
+            // #801: with no remembered choice, a legacy TUI-only row (no registered
+            // driver for its command) lands on Terminal instead of an empty chat.
+            val sid = _state.value.sessionId
+            if (prefs.sessionModes[sid] == null && !modeChosen) {
+                val isLegacy = isLegacySessionKey(legacy, _state.value.draft, sid)
+                val command = rowCommand ?: rosterCommandFor(resolvedHarnessId())
+                val registered = if (descResult.isSuccess) {
+                    desc.mapNotNull { rosterCommandFor(it.harnessId) }.toSet()
+                } else {
+                    null
+                }
+                if (sessionOpensOnTerminal(isLegacy, command, registered)) {
+                    _state.update { it.copy(mode = SessionMode.Terminal) }
+                }
+            }
             val hid = resolvedHarnessId()
             val caps = desc.find { it.harnessId == hid }?.capabilities
             val sheet = caps?.toSheet()
             var transport = _state.value.transport
             var summaryModel: String? = null
             var summaryEffort: String? = null
+            // Drafts and rows that arrived with their transport need no lookup.
+            var summaryReady = true
             if (!_state.value.draft && hid != null && caps != null && initialTransport == null) {
-                val sessions = withContext(Dispatchers.IO) {
-                    runCatching { hg.listSessions(hid, caps) }.getOrDefault(emptyList())
-                }
+                val listed = withContext(Dispatchers.IO) { runCatching { hg.listSessions(hid, caps) } }
+                summaryReady = listed.isSuccess
+                val sessions = listed.getOrDefault(emptyList())
                 val row = sessions.find { sessionMatchesNative(it.sessionId, _state.value.sessionId) }
                 if (row != null) {
                     transport = row.transport ?: transport
@@ -701,7 +742,17 @@ class HarnessChatViewModel(
                 }
                 else -> presetEffort.ifBlank { defaultEffort(sheet, model) }
             }
-            _state.update { it.copy(sheet = sheet, model = model, effort = effort, transport = transport) }
+            _state.update {
+                it.copy(
+                    sheet = sheet,
+                    model = model,
+                    effort = effort,
+                    transport = transport,
+                    summaryModel = summaryModel ?: it.summaryModel,
+                    summaryReady = summaryReady,
+                    registryReady = descResult.isSuccess,
+                )
+            }
             recomputeGate()
         } catch (e: Exception) {
             _state.update { it.copy(error = e.message ?: e.javaClass.simpleName) }
@@ -714,6 +765,52 @@ class HarnessChatViewModel(
         val st = _state.value
         val item = chatItemForGate(st.sessionId, st.draft, harnessId, st.title)
         _state.update { it.copy(gate = harnessGate(item, descriptors)) }
+        reconcileTurnPick()
+    }
+
+    /**
+     * Composer per-turn picker (#805): offered only on a protocol-owned
+     * conversation whose harness sheet declares `turnOptions`; empty while
+     * ownership is still unknown.
+     */
+    fun turnOptions(): TurnModelOptions {
+        val st = _state.value
+        return conversationModelOptions(
+            harnessId = resolvedHarnessId(),
+            sheet = st.sheet,
+            registryReady = st.registryReady,
+            pick = st.turnPick,
+            protocolOwned = conversationProtocolOwnership(
+                summaryReady = st.summaryReady,
+                registryReady = st.registryReady,
+                bound = st.gate.bound,
+                transport = st.transport,
+            ),
+            currentModel = st.summaryModel,
+        )
+    }
+
+    /** Pick a model and/or effort for the next turns; null = the session/harness default. */
+    fun setTurnPick(model: String?, effort: String?) {
+        val hid = resolvedHarnessId() ?: return
+        val pick = ConversationTurnPick(hid, model?.ifBlank { null }, effort?.ifBlank { null })
+            .takeIf { it.model != null || it.effort != null }
+        storeTurnPick(pick)
+        // A new model may not offer the kept effort — drop it now, keep the model.
+        reconcileTurnPick()
+    }
+
+    /** Drop a pick the settled sheet / ownership no longer supports (unknown keeps it). */
+    private fun reconcileTurnPick() {
+        val opts = turnOptions()
+        if (opts.clearPick) storeTurnPick(opts.retainedPick)
+    }
+
+    private fun storeTurnPick(pick: ConversationTurnPick?) {
+        if (_state.value.turnPick == pick) return
+        _state.update { it.copy(turnPick = pick) }
+        val sid = _state.value.sessionId
+        viewModelScope.launch { c.settings.setTurnPick(sid, pick?.let(::encodeTurnPick)) }
     }
 
     private fun startRegistry() {
@@ -808,7 +905,10 @@ class HarnessChatViewModel(
         recomputeGate()
         machine.rearmIdle()
         if (agentId.isNotBlank()) onAdoptPointer?.invoke(from, canonical)
-        viewModelScope.launch { c.settings.rekeySessionMode(from, canonical) }
+        viewModelScope.launch {
+            c.settings.rekeySessionMode(from, canonical)
+            c.settings.rekeyTurnPick(from, canonical)
+        }
         if (wasDraft || from != canonical) {
             startAttach(canonical)
             rearmIdleWatch()
@@ -999,7 +1099,10 @@ class HarnessChatViewModel(
     private suspend fun sendAdopted(action: ChatSendAction.SendTurn, attachments: List<StagedTurnAttachment>) {
         val hg = c.harness(nodeDenUrl)
         val st = _state.value
-        val turn = buildUserTurn(action.text, attachments, st.sheet, st.transport, st.model, st.effort)
+        // Only an explicit, still-offered per-turn pick rides the turn (#805);
+        // otherwise the session keeps its own model.
+        val opts = turnOptions()
+        val turn = buildUserTurn(action.text, attachments, st.sheet, st.transport, opts.effectiveModel, opts.effectiveEffort)
         val accepted = try {
             withContext(Dispatchers.IO) {
                 hg.sendTurn(sessionKeyEnc(action.sessionId), turn)
@@ -1223,11 +1326,6 @@ class HarnessChatViewModel(
         return effortListFor(st.sheet, st.model).map { it.id to it.label }
     }
 
-    fun nativeModels(): List<Pair<String, String>> {
-        val st = _state.value
-        return nativeTurnModels(st.sheet, st.transport).map { it.id to it.label }
-    }
-
     fun nativeImagesEnabled(): Boolean = nativeImageAttachments(_state.value.sheet, _state.value.transport)
 
     private fun resolvedHarnessId(): String? {
@@ -1250,8 +1348,14 @@ class HarnessChatViewModel(
                 incomingModel = model,
                 incomingEffort = effort,
             )
-            st.copy(transport = next.transport, model = next.model, effort = next.effort)
+            st.copy(
+                transport = next.transport,
+                model = next.model,
+                effort = next.effort,
+                summaryModel = model?.takeIf { it.isNotBlank() } ?: st.summaryModel,
+            )
         }
+        reconcileTurnPick()
     }
 
     companion object {
