@@ -2030,3 +2030,76 @@ describe('POST /term { agentId }', () => {
     }
   })
 })
+
+describe('GET/PUT /api/hub/state', () => {
+  const STATE = {
+    projects: [{ id: 'p1', name: 'General', order: 0, createdAt: 1 }],
+    membership: { 'arctic::claude-code:abc': 'p1' },
+    names: {},
+    archived: [],
+    pinned: [],
+    hidden: [],
+    modes: {},
+  }
+  const put = (base: string, body: unknown) =>
+    fetch(`${base}/api/hub/state`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: typeof body === 'string' ? body : JSON.stringify(body),
+    })
+
+  it('compare-and-sets the document and answers a stale write with 409 + current', async () => {
+    const { base, stateDir } = await start()
+    const first = await fetch(`${base}/api/hub/state`)
+    expect(first.status).toBe(200)
+    expect(await first.json()).toEqual({
+      version: 0,
+      state: {
+        projects: [],
+        membership: {},
+        names: {},
+        archived: [],
+        pinned: [],
+        hidden: [],
+        modes: {},
+      },
+    })
+
+    const ok = await put(base, { baseVersion: 0, state: STATE })
+    expect(ok.status).toBe(200)
+    expect(await ok.json()).toEqual({ version: 1, state: STATE })
+
+    const stale = await put(base, { baseVersion: 0, state: { ...STATE, membership: {} } })
+    expect(stale.status).toBe(409)
+    expect(await stale.json()).toEqual({ version: 1, state: STATE })
+
+    expect(JSON.parse(readFileSync(join(stateDir, 'hub-state', 'owner.json'), 'utf8'))).toEqual({
+      version: 1,
+      state: STATE,
+    })
+  })
+
+  it('refuses bad bodies and other methods', async () => {
+    const { base } = await start()
+    expect((await put(base, '{nope')).status).toBe(400)
+    expect((await put(base, { state: STATE })).status).toBe(400)
+    expect((await put(base, { baseVersion: 0, state: [] })).status).toBe(400)
+    expect((await post(base, '/api/hub/state', { baseVersion: 0, state: STATE })).status).toBe(405)
+    const preflight = await fetch(`${base}/api/hub/state`, { method: 'OPTIONS' })
+    expect(preflight.headers.get('access-control-allow-methods')).toContain('PUT')
+  })
+
+  it('tells connected viewers the document changed', async () => {
+    const { base, port } = await start()
+    const ws = new WebSocket(`ws://127.0.0.1:${port}/ws`)
+    const messages: Record<string, unknown>[] = []
+    ws.on('message', (d: Buffer) =>
+      messages.push(JSON.parse(d.toString()) as Record<string, unknown>),
+    )
+    await new Promise((r) => ws.once('open', r))
+    await put(base, { baseVersion: 0, state: STATE })
+    await new Promise((r) => setTimeout(r, 50))
+    ws.close()
+    expect(messages.at(-1)).toEqual({ type: 'hub.state', v: 1, version: 1 })
+  })
+})

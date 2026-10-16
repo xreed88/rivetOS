@@ -94,6 +94,7 @@ import type {
   AudioMicHealth,
 } from '@rivetos/types'
 import type { DenSessionsResponse, FilesListResponse, FilesMutateResponse } from '@rivetos/types'
+import type { HubState, HubStateResponse } from '@rivetos/types'
 import type {
   ApprovalDecision,
   HarnessApprovalAccepted,
@@ -1119,6 +1120,37 @@ export class RivetGateway {
     })
   }
 
+  // -- hub state --------------------------------------------------------------
+
+  /** The caller's hub state document (projects, names, archive, last session). */
+  async hubState(signal?: AbortSignal): Promise<HubStateResponse> {
+    return request(this.config, '/api/hub/state', { signal })
+  }
+
+  /**
+   * Compare-and-set write. A stale `baseVersion` is not an error: it resolves
+   * `{ ok: false }` with the current document so the caller can merge and
+   * retry. Any other failure throws GatewayError.
+   */
+  async putHubState(
+    baseVersion: number,
+    state: HubState,
+    signal?: AbortSignal,
+  ): Promise<HubStatePutResult> {
+    try {
+      const doc = await request<HubStateResponse>(this.config, '/api/hub/state', {
+        method: 'PUT',
+        body: { baseVersion, state },
+        signal,
+      })
+      return { ok: true, ...doc }
+    } catch (err) {
+      if (err instanceof GatewayError && err.status === 409 && isHubStateResponse(err.body))
+        return { ok: false, ...err.body }
+      throw err
+    }
+  }
+
   // -- health -----------------------------------------------------------------
 
   /** Cheap reachability probe (den-server /healthz, never token-gated) —
@@ -1131,6 +1163,15 @@ export class RivetGateway {
       return false
     }
   }
+}
+
+/** `putHubState` outcome: `ok: false` carries the newer stored document. */
+export type HubStatePutResult = { ok: boolean } & HubStateResponse
+
+function isHubStateResponse(body: unknown): body is HubStateResponse {
+  if (typeof body !== 'object' || body === null) return false
+  const { version, state } = body as { version?: unknown; state?: unknown }
+  return typeof version === 'number' && typeof state === 'object' && state !== null
 }
 
 /** Raw-body POST shared by the binary endpoints (files upload, attachment
