@@ -88,14 +88,22 @@ beforeEach(() => {
 describe('lastActive reducer', () => {
   it('setActive writes the resume pointer (key + node) and persists it', () => {
     useChat.getState().setActive('claude-code:abc')
-    expect(useChat.getState().lastActive).toEqual({ sessionId: 'claude-code:abc', baseUrl: BASE })
+    expect(useChat.getState().lastActive).toEqual({
+      sessionId: 'claude-code:abc',
+      baseUrl: BASE,
+      at: expect.any(Number),
+    })
     const raw = localStorage.getItem('rivethub.chat')
     expect(raw).toBeTruthy()
     const parsed = JSON.parse(raw ?? '') as {
       state: Record<string, unknown>
       version: number
     }
-    expect(parsed.state.lastActive).toEqual({ sessionId: 'claude-code:abc', baseUrl: BASE })
+    expect(parsed.state.lastActive).toEqual({
+      sessionId: 'claude-code:abc',
+      baseUrl: BASE,
+      at: expect.any(Number),
+    })
     expect(parsed.version).toBe(1)
     // Only the pointer persists — live socket state never does.
     expect(parsed.state.messages).toBeUndefined()
@@ -149,7 +157,11 @@ describe('lastActive reducer', () => {
     useChat.setState({ lastActive: undefined, active: undefined })
     localStorage.setItem('rivethub.chat', raw ?? '')
     await useChat.persist.rehydrate()
-    expect(useChat.getState().lastActive).toEqual({ sessionId: 'claude-code:abc', baseUrl: BASE })
+    expect(useChat.getState().lastActive).toEqual({
+      sessionId: 'claude-code:abc',
+      baseUrl: BASE,
+      at: expect.any(Number),
+    })
     // The selection itself is NOT restored — resolving it is the launch
     // effect's job (the row may be gone after a reload).
     expect(useChat.getState().active).toBeUndefined()

@@ -15,6 +15,7 @@
 
 import { emptyHubState, mergeHubState, type HubState, type HubStateResponse } from '@rivetos/types'
 import { GatewayError } from '@rivetos/gateway-client'
+import { useChat } from '../stores/chat.js'
 import { useConnection } from '../stores/connection.js'
 import { useArchived } from '../stores/archived.js'
 import { useSessionNames } from '../stores/session-names.js'
@@ -29,6 +30,7 @@ import {
   type NodeMap,
 } from './hub-state-translate.js'
 import { fetchHealthz } from './node-name.js'
+import { sessionNodeFor } from './session-node.js'
 import { onSessionModesChange, readSessionModes, replaceSessionModes } from './session-mode.js'
 
 export const HUB_STATE_SYNCED_KEY = 'rivethub.hubState.synced'
@@ -48,13 +50,26 @@ export function readLocalHubState(): LocalHubState {
   for (const [key, name] of Object.entries(useSessionNames.getState().byKey)) {
     if (name) names[key] = name
   }
-  return {
+  const local: LocalHubState = {
     spaces: spaces.spaces,
     membership: spaces.membership,
     names,
     archived: useArchived.getState().keys,
     modes: readSessionModes(),
   }
+  // The open session, keyed on the node it lives on (a cross-node thread is
+  // not on the connected node). Pointers from before hub state have no `at`.
+  const last = useChat.getState().lastActive
+  if (last?.at) {
+    const { roster } = useConnection.getState()
+    const node = sessionNodeFor(
+      last.sessionId,
+      last.baseUrl,
+      roster.map((n) => n.baseUrl),
+    )
+    local.lastSession = { key: `${node}::${last.sessionId}`, at: last.at }
+  }
+  return local
 }
 
 function applyLocalHubState(next: LocalHubState): void {
@@ -237,6 +252,10 @@ export function installHubStateSync(opts: HubStateSyncOptions = {}): () => void 
     useSessionNames.subscribe(schedule),
     useArchived.subscribe(schedule),
     onSessionModesChange(schedule),
+    // only the resume pointer: the rest of the chat store is live socket state
+    useChat.subscribe((s, prev) => {
+      if (s.lastActive !== prev.lastActive) schedule()
+    }),
     useConnection.subscribe((s, prev) => {
       if (s.baseUrl !== prev.baseUrl || s.transportEpoch !== prev.transportEpoch) sync()
     }),

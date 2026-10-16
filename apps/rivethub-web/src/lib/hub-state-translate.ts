@@ -28,6 +28,8 @@ export interface LocalHubState {
   names: Record<string, string>
   archived: string[]
   modes: Record<string, HubSessionMode>
+  /** The session desktop last opened, keyed `${baseUrl}::${sessionKey}`. */
+  lastSession?: { key: string; at: number }
 }
 
 export interface NodeMap {
@@ -78,6 +80,7 @@ export function localUrls(local: LocalHubState): string[] {
   Object.keys(local.names).forEach(add)
   Object.keys(local.modes).forEach(add)
   local.archived.forEach(add)
+  if (local.lastSession) add(local.lastSession.key)
   for (const space of local.spaces) if (space.defaults?.node) urls.add(space.defaults.node)
   return [...urls]
 }
@@ -188,8 +191,8 @@ function projectToLocal(project: HubProject, nodes: NodeMap): SpaceDef {
 
 /**
  * Desktop state as a document. Fields desktop does not own (pins, hidden,
- * last session, default project) come from `base`, so a PUT never clears
- * what another device set.
+ * default project) come from `base`, so a PUT never clears what another
+ * device set. The last session is desktop's own open when its node is known.
  */
 export function toHubState(local: LocalHubState, base: HubState, nodes: NodeMap): HubState {
   const priorById = new Map(base.projects.map((p) => [p.id, p]))
@@ -203,7 +206,9 @@ export function toHubState(local: LocalHubState, base: HubState, nodes: NodeMap)
     hidden: base.hidden,
   }
   if (base.defaultProjectId) state.defaultProjectId = base.defaultProjectId
-  if (base.lastSession) state.lastSession = base.lastSession
+  const lastKey = local.lastSession ? toHubKey(local.lastSession.key, nodes) : undefined
+  if (local.lastSession && lastKey) state.lastSession = { key: lastKey, at: local.lastSession.at }
+  else if (base.lastSession) state.lastSession = base.lastSession
   return state
 }
 
@@ -220,6 +225,8 @@ export function fromHubState(hub: HubState, local: LocalHubState, nodes: NodeMap
         ...hub.archived.flatMap((key) => toLocalKey(key, nodes) ?? []),
       ]),
     ],
+    // desktop never resumes another device's open; its own pointer stays
+    ...(local.lastSession ? { lastSession: local.lastSession } : {}),
   }
 }
 

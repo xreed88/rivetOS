@@ -165,7 +165,8 @@ interface ChatState {
    * load lands) falls back to `pickLaunchSession` — see pages/chat.tsx. The
    * only field of this store that persists (see the persist partialize).
    */
-  lastActive?: { sessionId: string; baseUrl: string }
+  /** `at` (epoch ms) is when it was opened; hub state shares it as the last session. */
+  lastActive?: { sessionId: string; baseUrl: string; at?: number }
   seed: (sessionId: string, messages: SessionMessage[]) => void
   /** Hard-resync: replace the session transcript wholesale and clear live
    *  turn state (Android resyncTranscriptToConversation). Does not merge.
@@ -1072,7 +1073,7 @@ export const useChat = create<ChatState>()(
             // Instant-resume pointer (narrow launch reopens the last thread
             // before the mesh loads). Node-tagged: ids are per-gateway, so a
             // pointer only resumes against the node it was written on.
-            lastActive: { sessionId, baseUrl: useConnection.getState().baseUrl },
+            lastActive: { sessionId, baseUrl: useConnection.getState().baseUrl, at: Date.now() },
             opened: s.opened.includes(sessionId) ? s.opened : [...s.opened, sessionId],
           }
         }),

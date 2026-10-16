@@ -60,6 +60,14 @@ describe('mergeHubState', () => {
     expect(merged.defaultProjectId).toBe('p1')
   })
 
+  it('never lets an older last session replace a newer one, whatever the base', () => {
+    const newer = { key: K3, at: 30 }
+    const older = { key: K1, at: 10 }
+    const synced: HubState = { ...base, lastSession: newer }
+    const merged = mergeHubState(synced, { ...base, lastSession: older }, synced)
+    expect(merged.lastSession).toEqual(newer)
+  })
+
   it('takes the later last session when both sides moved it', () => {
     const local: HubState = { ...base, lastSession: { key: K1, at: 20 } }
     const remote: HubState = { ...base, lastSession: { key: K3, at: 30 } }

@@ -125,6 +125,24 @@ describe('fromHubState', () => {
   })
 })
 
+describe('last session', () => {
+  it("shares desktop's own open under its node, else keeps the document's", () => {
+    const base: HubState = {
+      ...emptyHubState(),
+      lastSession: { key: 'pixel::claude-code:z', at: 5 },
+    }
+    const mine = { ...emptyLocal, lastSession: { key: `${TS}::claude-code:a`, at: 9 } }
+    expect(toHubState(mine, base, nodes).lastSession).toEqual({
+      key: 'arctic::claude-code:a',
+      at: 9,
+    })
+    const offline = { ...emptyLocal, lastSession: { key: `${OFFLINE}::claude-code:q`, at: 9 } }
+    expect(toHubState(offline, base, nodes).lastSession).toEqual(base.lastSession)
+    // reading the document never moves desktop's own pointer
+    expect(fromHubState(base, mine, nodes).lastSession).toEqual(mine.lastSession)
+  })
+})
+
 describe('helpers', () => {
   it('lists every URL the local state mentions', () => {
     const local: LocalHubState = {

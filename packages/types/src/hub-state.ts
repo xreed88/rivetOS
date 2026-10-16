@@ -260,15 +260,18 @@ function mergeById(base: HubProject[], local: HubProject[], remote: HubProject[]
   return out
 }
 
+/**
+ * Latest wins, whatever the base: a device still carrying an older open must
+ * never replace a newer one from another device.
+ */
 function mergeLastSession(
-  base: HubLastSession | undefined,
+  _base: HubLastSession | undefined,
   local: HubLastSession | undefined,
   remote: HubLastSession | undefined,
 ): HubLastSession | undefined {
-  if (same(local, base)) return remote
-  if (same(remote, base) || !remote) return local
   if (!local) return remote
-  return local.at >= remote.at ? local : remote
+  if (!remote) return local
+  return local.at > remote.at ? local : remote
 }
 
 function capMap<V>(map: Record<string, V>, max: number): Record<string, V> {

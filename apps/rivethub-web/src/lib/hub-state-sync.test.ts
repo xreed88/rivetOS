@@ -90,6 +90,7 @@ const { useSpaces } = await import('../stores/spaces.js')
 const { useSessionNames } = await import('../stores/session-names.js')
 const { useArchived } = await import('../stores/archived.js')
 const { getSessionMode, setSessionMode } = await import('./session-mode.js')
+const { useChat } = await import('../stores/chat.js')
 
 let uninstall: (() => void) | undefined
 
@@ -182,6 +183,15 @@ describe('hub state sync', () => {
     await vi.waitFor(() =>
       expect(useSessionNames.getState().byKey[`${BASE}::codex:phone`]).toBe('Phone rename'),
     )
+  })
+
+  it('shares the session desktop opened as the last session', async () => {
+    useChat.setState({ lastActive: { sessionId: 'claude-code:a', baseUrl: BASE, at: 1234 } })
+    start()
+    await vi.waitFor(() =>
+      expect(den.doc.state.lastSession).toEqual({ key: 'arctic::claude-code:a', at: 1234 }),
+    )
+    useChat.setState({ lastActive: undefined })
   })
 
   it('stays local-only against a den without the route', async () => {
