@@ -22,7 +22,7 @@ export class GatewayError extends Error {
 export type QueryValue = string | number | boolean | undefined
 
 export interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   query?: Record<string, QueryValue>
   body?: unknown
   signal?: AbortSignal

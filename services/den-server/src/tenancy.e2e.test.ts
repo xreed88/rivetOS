@@ -452,6 +452,39 @@ describe.skipIf(!haveOpenssl() || !remoteIp)('tenancy route inventory (real TLS)
     )
   })
 
+  it('hub state is one document per user, never shared across users', async () => {
+    const state = {
+      projects: [{ id: 'p1', name: 'Coco', order: 0, createdAt: 1 }],
+      membership: {},
+      names: { 'node::claude-code:coco-room': 'Hers' },
+      archived: [],
+    }
+    const put = await call('PUT', `${remote}/api/hub/state`, coco, { baseVersion: 0, state })
+    expect(put.status).toBe(200)
+    const hers = await call('GET', `${remote}/api/hub/state`, coco)
+    expect(JSON.parse(hers.body)).toEqual({ version: 1, state })
+    const ownerDoc = await call('GET', `${loopback}/api/hub/state`, { ca: pki.ca })
+    expect(JSON.parse(ownerDoc.body)).toEqual({
+      version: 0,
+      state: { projects: [], membership: {}, names: {}, archived: [] },
+    })
+    // the owner's write starts from the owner's own version, not coco's
+    const ownerPut = await call(
+      'PUT',
+      `${loopback}/api/hub/state`,
+      { ca: pki.ca },
+      {
+        baseVersion: 0,
+        state: { ...state, names: {} },
+      },
+    )
+    expect(ownerPut.status).toBe(200)
+    expect(JSON.parse((await call('GET', `${remote}/api/hub/state`, coco)).body)).toEqual({
+      version: 1,
+      state,
+    })
+  })
+
   it("GET transcript refuses another user's session by id", async () => {
     expect(
       (await call('GET', `${remote}/term/harness-sessions/owner-room/transcript`, coco)).status,

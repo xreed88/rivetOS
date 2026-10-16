@@ -82,6 +82,7 @@ import {
   stampUserHeader,
 } from './identity.js'
 import { auditTenancyDeny, createSessionOwners, sessionForbidden } from './session-owners.js'
+import { createHubStateStore, hubStateScope } from './hub-state.js'
 import { createMeshView, loadMeshFile, meshDenOrigins, meshFilePaths } from './mesh.js'
 import { checkOrigin, type OriginPolicyOptions } from './origin-policy.js'
 import { draftIsText, preSendBlockOnScreen } from './term/blocking-dialog.js'
@@ -329,7 +330,7 @@ const API_PATHS = new Set([
 // No Access-Control-Allow-Origin here: the request handler echoes the
 // caller's origin only when the origin policy allows it (origin-policy.ts).
 const CORS = {
-  'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
   // x-rivet-conversation / x-rivet-title: OpenAI /v1 bridge conventions (Android)
   'Access-Control-Allow-Headers':
     'content-type, authorization, x-rivet-conversation, x-rivet-title',
@@ -520,6 +521,7 @@ export function createDenServer(config: DenConfig, opts: DenServerOptions = {}):
   // Persisted session ownership — hoisted above broadcast so the live event
   // fanout filters by it too, not just the listing routes. Untagged = owner.
   const sessionOwners = createSessionOwners(join(config.stateDir, 'session-owners.json'))
+  const hubState = createHubStateStore(join(config.stateDir, 'hub-state'))
   // Native ids a task row registered. `spawn` reads this synchronously, so
   // refresh it before the call. A store miss leaves the previous set rather
   // than refusing a resume that was allowed a moment ago.
@@ -1733,6 +1735,39 @@ export function createDenServer(config: DenConfig, opts: DenServerOptions = {}):
         for (const [k, v] of Object.entries(CORS)) res.setHeader(k, v)
         if (await agentsRoutes.handle(req, res, url)) return
         return json(res, 404, { error: 'not found' })
+      }
+
+      // Per-user hub state (projects, names, archive, last session) shared
+      // across a user's devices. Compare-and-set on version: a stale PUT gets
+      // 409 with the current document so the client can merge and retry.
+      if (url.pathname === '/api/hub/state') {
+        for (const [k, v] of Object.entries(CORS)) res.setHeader(k, v)
+        const scope = hubStateScope(userCtx)
+        if (req.method === 'GET') return json(res, 200, hubState.get(scope))
+        if (req.method === 'PUT') {
+          const body = await readBody(req, 1024 * 1024).catch(() => null)
+          if (body === null) return tooLarge(req, res)
+          let parsed: { baseVersion?: unknown; state?: unknown }
+          try {
+            parsed = JSON.parse(body) as typeof parsed
+          } catch {
+            return json(res, 400, { error: 'invalid JSON' })
+          }
+          if (!parsed || typeof parsed !== 'object')
+            return json(res, 400, { error: 'body must be an object' })
+          const result = hubState.put(scope, parsed.baseVersion, parsed.state)
+          if (result.ok) {
+            const frame = JSON.stringify({ type: 'hub.state', v: 1, version: result.version })
+            for (const c of clients) {
+              if (c.ws.readyState === 1 && hubStateScope(c.user) === scope) c.ws.send(frame)
+            }
+            return json(res, 200, { version: result.version, state: result.state })
+          }
+          if (result.conflict)
+            return json(res, 409, { version: result.version, state: result.state })
+          return json(res, 400, { error: result.error })
+        }
+        return json(res, 405, { error: 'method not allowed' })
       }
 
       // Node capability discovery. Registered beside the harness plane so a

@@ -1,5 +1,6 @@
 export { RivetGateway } from './client.js'
 export type {
+  HubStatePutResult,
   OutcomesQuery,
   TaskListQuery,
   WaitOptions,

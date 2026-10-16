@@ -461,3 +461,21 @@ export type {
   MemoryWikiIndex,
   MemoryWikiTopic,
 } from './memory-backend.js'
+export {
+  HUB_STATE_LIMITS,
+  emptyHubState,
+  hubSessionKey,
+  normalizeHubState,
+  parseHubSessionKey,
+  rekeyHubState,
+} from './hub-state.js'
+export type {
+  HubLastSession,
+  HubProject,
+  HubProjectDefaults,
+  HubState,
+  HubStateNormalizeResult,
+  HubStatePutRequest,
+  HubStatePutResponse,
+  HubStateResponse,
+} from './hub-state.js'
