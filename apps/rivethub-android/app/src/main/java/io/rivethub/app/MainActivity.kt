@@ -417,6 +417,7 @@ fun App(
                 model = open.model,
                 effort = open.effort,
                 agentId = open.agentId,
+                directory = open.directory,
             ),
             replaceAll,
         )
@@ -631,6 +632,7 @@ fun App(
                         presetModel = s.model, presetEffort = s.effort, initialTransport = s.transport,
                         openStream = openStream,
                         agentId = s.agentId,
+                        directory = s.directory,
                         onAdoptPointer = { from, canonical ->
                             hubVm.adoptChatPointer(s.agentId, from, canonical, s.nodeDenUrl)
                         },
