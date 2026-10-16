@@ -458,6 +458,9 @@ describe.skipIf(!haveOpenssl() || !remoteIp)('tenancy route inventory (real TLS)
       membership: {},
       names: { 'node::claude-code:coco-room': 'Hers' },
       archived: [],
+      pinned: [],
+      hidden: [],
+      modes: {},
     }
     const put = await call('PUT', `${remote}/api/hub/state`, coco, { baseVersion: 0, state })
     expect(put.status).toBe(200)
@@ -466,7 +469,7 @@ describe.skipIf(!haveOpenssl() || !remoteIp)('tenancy route inventory (real TLS)
     const ownerDoc = await call('GET', `${loopback}/api/hub/state`, { ca: pki.ca })
     expect(JSON.parse(ownerDoc.body)).toEqual({
       version: 0,
-      state: { projects: [], membership: {}, names: {}, archived: [] },
+      state: { projects: [], membership: {}, names: {}, archived: [], pinned: [], hidden: [], modes: {} },
     })
     // the owner's write starts from the owner's own version, not coco's
     const ownerPut = await call(

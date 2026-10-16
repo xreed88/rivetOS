@@ -48,8 +48,16 @@ export interface HubState {
   names: Record<string, string>
   /** Session keys, oldest archived first. */
   archived: string[]
+  /** Session keys pinned to the top of the list. */
+  pinned: string[]
+  /** Session keys hidden from the list (not archived). */
+  hidden: string[]
+  /** Session key → the user's explicit chat/terminal choice. */
+  modes: Record<string, HubSessionMode>
   lastSession?: HubLastSession
 }
+
+export type HubSessionMode = 'chat' | 'terminal'
 
 /** `GET /api/hub/state`, and the body of a `409` on `PUT`. */
 export interface HubStateResponse {
@@ -77,6 +85,9 @@ export const HUB_STATE_LIMITS = {
   membership: 2000,
   names: 500,
   archived: 1000,
+  pinned: 500,
+  hidden: 1000,
+  modes: 500,
   textLength: 200,
   directoryLength: 4096,
 } as const
@@ -97,7 +108,15 @@ export function parseHubSessionKey(key: string): { nodeId: string; sessionKey: s
 }
 
 export function emptyHubState(): HubState {
-  return { projects: [], membership: {}, names: {}, archived: [] }
+  return {
+    projects: [],
+    membership: {},
+    names: {},
+    archived: [],
+    pinned: [],
+    hidden: [],
+    modes: {},
+  }
 }
 
 export type HubStateNormalizeResult = { ok: true; state: HubState } | { ok: false; error: string }
@@ -132,15 +151,20 @@ export function normalizeHubState(raw: unknown): HubStateNormalizeResult {
   const names = normalizeKeyedStrings(raw.names, HUB_STATE_LIMITS.names)
   if (names === 'over') return overCap('names', HUB_STATE_LIMITS.names)
 
-  const rawArchived = raw.archived ?? []
-  if (!Array.isArray(rawArchived)) return { ok: false, error: 'archived must be an array' }
-  if (rawArchived.length > HUB_STATE_LIMITS.archived)
-    return overCap('archived', HUB_STATE_LIMITS.archived)
-  const archived = [
-    ...new Set(rawArchived.filter((k): k is string => typeof k === 'string' && isHubKey(k))),
-  ]
+  const archived = normalizeKeyList(raw.archived, 'archived')
+  if (typeof archived === 'string') return { ok: false, error: archived }
+  const pinned = normalizeKeyList(raw.pinned, 'pinned')
+  if (typeof pinned === 'string') return { ok: false, error: pinned }
+  const hidden = normalizeKeyList(raw.hidden, 'hidden')
+  if (typeof hidden === 'string') return { ok: false, error: hidden }
 
-  const state: HubState = { projects, membership, names, archived }
+  const rawModes = normalizeKeyedStrings(raw.modes, HUB_STATE_LIMITS.modes)
+  if (rawModes === 'over') return overCap('modes', HUB_STATE_LIMITS.modes)
+  const modes = Object.fromEntries(
+    Object.entries(rawModes).filter(([, mode]) => mode === 'chat' || mode === 'terminal'),
+  ) as Record<string, HubSessionMode>
+
+  const state: HubState = { projects, membership, names, archived, pinned, hidden, modes }
   const defaultProjectId = text(raw.defaultProjectId)
   if (defaultProjectId && ids.has(defaultProjectId)) state.defaultProjectId = defaultProjectId
   if (isPlainObject(raw.lastSession)) {
@@ -163,14 +187,16 @@ export function rekeyHubState(state: HubState, from: string, to: string): HubSta
     if (!Object.hasOwn(next, to)) next[to] = map[from]
     return next
   }
-  const archived = state.archived.includes(from)
-    ? [...new Set(state.archived.map((k) => (k === from ? to : k)))]
-    : state.archived
+  const swap = (keys: string[]): string[] =>
+    keys.includes(from) ? [...new Set(keys.map((k) => (k === from ? to : k)))] : keys
   return {
     ...state,
     membership: move(state.membership),
     names: move(state.names),
-    archived,
+    modes: move(state.modes) as Record<string, HubSessionMode>,
+    archived: swap(state.archived),
+    pinned: swap(state.pinned),
+    hidden: swap(state.hidden),
     ...(state.lastSession?.key === from ? { lastSession: { ...state.lastSession, key: to } } : {}),
   }
 }
@@ -216,6 +242,17 @@ function normalizeKeyedStrings(raw: unknown, max: number): Record<string, string
     if (isHubKey(key) && v) out[key] = v
   }
   return out
+}
+
+function normalizeKeyList(
+  raw: unknown,
+  field: 'archived' | 'pinned' | 'hidden',
+): string[] | string {
+  if (raw === undefined) return []
+  if (!Array.isArray(raw)) return `${field} must be an array`
+  if (raw.length > HUB_STATE_LIMITS[field])
+    return `too many ${field} entries (max ${HUB_STATE_LIMITS[field]})`
+  return [...new Set(raw.filter((k): k is string => typeof k === 'string' && isHubKey(k)))]
 }
 
 function overCap(field: string, max: number): HubStateNormalizeResult {

@@ -44,6 +44,9 @@ const STATE: HubState = {
   membership: { 'arctic::claude-code:abc': 'p1' },
   names: { 'arctic::claude-code:abc': 'Hub state' },
   archived: [],
+  pinned: [],
+  hidden: [],
+  modes: {},
 }
 
 describe('hubStateScope', () => {

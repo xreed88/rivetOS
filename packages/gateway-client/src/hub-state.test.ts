@@ -7,7 +7,15 @@ import { RivetGateway } from './client.js'
 /** Stub of den's compare-and-set route: one document, version-checked PUTs. */
 let doc: HubStateResponse = {
   version: 0,
-  state: { projects: [], membership: {}, names: {}, archived: [] },
+  state: {
+    projects: [],
+    membership: {},
+    names: {},
+    archived: [],
+    pinned: [],
+    hidden: [],
+    modes: {},
+  },
 }
 let server: Server
 let gw: RivetGateway
@@ -49,6 +57,9 @@ describe('hub state client', () => {
     membership: {},
     names: { 'arctic::claude-code:abc': 'Renamed' },
     archived: [],
+    pinned: [],
+    hidden: [],
+    modes: {},
   }
 
   it('reads, then writes against the version it read', async () => {

@@ -473,6 +473,7 @@ export type {
   HubLastSession,
   HubProject,
   HubProjectDefaults,
+  HubSessionMode,
   HubState,
   HubStateNormalizeResult,
   HubStatePutRequest,

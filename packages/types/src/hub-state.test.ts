@@ -104,6 +104,21 @@ describe('normalizeHubState', () => {
     expect(state.lastSession).toEqual({ key: K2, at: 10 })
   })
 
+  it('keeps pins, hidden and modes, dropping unknown modes', () => {
+    const state = normalized({
+      pinned: [K1, K1, 'no-separator'],
+      hidden: [K2],
+      modes: { [K1]: 'terminal', [K2]: 'chat', 'arctic::x': 'split' },
+    })
+    expect(state.pinned).toEqual([K1])
+    expect(state.hidden).toEqual([K2])
+    expect(state.modes).toEqual({ [K1]: 'terminal', [K2]: 'chat' })
+    expect(normalizeHubState({ pinned: 'x' })).toEqual({
+      ok: false,
+      error: 'pinned must be an array',
+    })
+  })
+
   it('refuses a document over a cap instead of truncating it', () => {
     const names: Record<string, string> = {}
     for (let i = 0; i <= HUB_STATE_LIMITS.names; i++) names[hubSessionKey('n', `s${i}`)] = 'x'
@@ -122,6 +137,9 @@ describe('rekeyHubState', () => {
       membership: { [K1]: 'p1' },
       names: { [K1]: 'draft' },
       archived: [K1],
+      pinned: [K1],
+      hidden: [K1],
+      modes: { [K1]: 'terminal' },
       lastSession: { key: K1, at: 1 },
     }
     expect(rekeyHubState(state, K1, K2)).toEqual({
@@ -129,6 +147,9 @@ describe('rekeyHubState', () => {
       membership: { [K2]: 'p1' },
       names: { [K2]: 'draft' },
       archived: [K2],
+      pinned: [K2],
+      hidden: [K2],
+      modes: { [K2]: 'terminal' },
       lastSession: { key: K2, at: 1 },
     })
   })

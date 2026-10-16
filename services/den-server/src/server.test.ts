@@ -2037,6 +2037,9 @@ describe('GET/PUT /api/hub/state', () => {
     membership: { 'arctic::claude-code:abc': 'p1' },
     names: {},
     archived: [],
+    pinned: [],
+    hidden: [],
+    modes: {},
   }
   const put = (base: string, body: unknown) =>
     fetch(`${base}/api/hub/state`, {
@@ -2051,7 +2054,15 @@ describe('GET/PUT /api/hub/state', () => {
     expect(first.status).toBe(200)
     expect(await first.json()).toEqual({
       version: 0,
-      state: { projects: [], membership: {}, names: {}, archived: [] },
+      state: {
+        projects: [],
+        membership: {},
+        names: {},
+        archived: [],
+        pinned: [],
+        hidden: [],
+        modes: {},
+      },
     })
 
     const ok = await put(base, { baseVersion: 0, state: STATE })
