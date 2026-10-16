@@ -34,12 +34,35 @@ function load(): Record<string, UserChoice> {
   }
 }
 
+const listeners = new Set<() => void>()
+
 function save(map: Record<string, UserChoice>): void {
   try {
     localStorage.setItem(KEY, JSON.stringify(map))
   } catch {
     /* storage full / disabled — mode just won't persist */
   }
+  for (const listener of listeners) listener()
+}
+
+/** Called after every write. Returns the unsubscribe. */
+export function onSessionModesChange(listener: () => void): () => void {
+  listeners.add(listener)
+  return () => listeners.delete(listener)
+}
+
+/** Every explicit choice, oldest first. */
+export function readSessionModes(): Record<string, SessionViewMode> {
+  return Object.fromEntries(Object.entries(load()).map(([key, entry]) => [key, entry.mode]))
+}
+
+/** Replace every choice at once (hub state sync). */
+export function replaceSessionModes(modes: Record<string, SessionViewMode>): void {
+  const entries = Object.entries(modes).map(([key, mode]): [string, UserChoice] => [
+    key,
+    { mode, source: 'user' },
+  ])
+  save(Object.fromEntries(entries.length > MAX ? entries.slice(-MAX) : entries))
 }
 
 export function getSessionMode(

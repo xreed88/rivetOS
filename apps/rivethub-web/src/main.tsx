@@ -19,6 +19,7 @@ import { installClipboardBridge } from './lib/clipboard.js'
 import { installShellKeys } from './lib/shell-keys.js'
 import { hydrateSettingsIfEmpty, installSettingsSync } from './lib/settings-sync.js'
 import { installOmarchySync } from './lib/omarchy-sync.js'
+import { installHubStateSync } from './lib/hub-state-sync.js'
 import { adoptStoredRemoteUi } from './lib/remote-ui.js'
 import { useConnection } from './stores/connection.js'
 import { watchFinishedTurns } from './lib/turn-finished.js'
@@ -56,7 +57,8 @@ if (!rootEl) throw new Error('missing #root element')
 // 2) Refresh the connection store from storage (module init ran before 1).
 // 3) Adopt last-active remote into the gateway (repoint only).
 // 4) Honor ?node= (Android drawer deep-link). Auth is device mTLS.
-// 5) Mount React.
+// 5) Start hub state sync (projects, names, archive shared with the phone).
+// 6) Mount React.
 void hydrateSettingsIfEmpty()
   .then(() => {
     useConnection.getState().hydrateFromStorage()
@@ -71,6 +73,7 @@ void hydrateSettingsIfEmpty()
       setConnection: (url) => useConnection.getState().setConnection(url),
       addNode: (node) => useConnection.getState().addNode(node),
     })
+    installHubStateSync()
     createRoot(rootEl).render(
       <StrictMode>
         <QueryClientProvider client={queryClient}>

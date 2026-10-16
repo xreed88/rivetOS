@@ -3,6 +3,7 @@ import {
   HUB_STATE_LIMITS,
   emptyHubState,
   hubSessionKey,
+  mergeHubState,
   normalizeHubState,
   parseHubSessionKey,
   rekeyHubState,
@@ -11,6 +12,69 @@ import {
 
 const K1 = hubSessionKey('arctic', 'claude-code:abc')
 const K2 = hubSessionKey('arctic', 'codex:def')
+const K3 = hubSessionKey('pixel', 'claude-code:ghi')
+
+describe('mergeHubState', () => {
+  const general = { id: 'p1', name: 'General', order: 0, createdAt: 0 }
+  const base: HubState = {
+    ...emptyHubState(),
+    projects: [general],
+    membership: { [K1]: 'p1' },
+    names: { [K1]: 'one', [K2]: 'two' },
+    archived: [K2],
+  }
+
+  it('keeps both sides when two devices edit different entries', () => {
+    const local: HubState = { ...base, names: { ...base.names, [K1]: 'renamed here' } }
+    const remote: HubState = { ...base, archived: [K2, K3], pinned: [K1] }
+    expect(mergeHubState(base, local, remote)).toEqual({
+      ...base,
+      names: { [K1]: 'renamed here', [K2]: 'two' },
+      archived: [K2, K3],
+      pinned: [K1],
+    })
+  })
+
+  it("applies this device's removals and the other device's additions", () => {
+    const local: HubState = { ...base, archived: [], names: { [K1]: 'one' } }
+    const remote: HubState = { ...base, names: { ...base.names, [K3]: 'three' } }
+    const merged = mergeHubState(base, local, remote)
+    expect(merged.archived).toEqual([])
+    expect(merged.names).toEqual({ [K1]: 'one', [K3]: 'three' })
+  })
+
+  it('lets the local edit win when both sides changed the same entry', () => {
+    const local: HubState = { ...base, names: { ...base.names, [K1]: 'mine' } }
+    const remote: HubState = { ...base, names: { ...base.names, [K1]: 'theirs' } }
+    expect(mergeHubState(base, local, remote).names[K1]).toBe('mine')
+  })
+
+  it('drops membership of a project the other device deleted', () => {
+    const work = { id: 'p2', name: 'Work', order: 1, createdAt: 1 }
+    const withWork: HubState = { ...base, projects: [general, work] }
+    const local: HubState = { ...withWork, membership: { [K1]: 'p1', [K2]: 'p2' } }
+    const remote: HubState = { ...withWork, projects: [general], defaultProjectId: 'p1' }
+    const merged = mergeHubState(withWork, local, remote)
+    expect(merged.projects).toEqual([general])
+    expect(merged.membership).toEqual({ [K1]: 'p1' })
+    expect(merged.defaultProjectId).toBe('p1')
+  })
+
+  it('takes the later last session when both sides moved it', () => {
+    const local: HubState = { ...base, lastSession: { key: K1, at: 20 } }
+    const remote: HubState = { ...base, lastSession: { key: K3, at: 30 } }
+    expect(mergeHubState(base, local, remote).lastSession).toEqual({ key: K3, at: 30 })
+  })
+
+  it('merging onto an empty base is a union (first sync on a new device)', () => {
+    const local: HubState = { ...emptyHubState(), names: { [K1]: 'desktop' } }
+    const remote: HubState = { ...emptyHubState(), names: { [K3]: 'phone' } }
+    expect(mergeHubState(emptyHubState(), local, remote).names).toEqual({
+      [K3]: 'phone',
+      [K1]: 'desktop',
+    })
+  })
+})
 
 function normalized(raw: unknown): HubState {
   const res = normalizeHubState(raw)
@@ -102,6 +166,11 @@ describe('normalizeHubState', () => {
     expect(state.archived).toEqual([K1])
     expect(state.defaultProjectId).toBeUndefined()
     expect(state.lastSession).toEqual({ key: K2, at: 10 })
+  })
+
+  it('clips an over-long name instead of dropping it', () => {
+    const state = normalized({ names: { [K1]: 'x'.repeat(500) } })
+    expect(state.names[K1]).toHaveLength(HUB_STATE_LIMITS.textLength)
   })
 
   it('keeps pins, hidden and modes, dropping unknown modes', () => {

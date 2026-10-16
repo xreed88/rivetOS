@@ -175,6 +175,108 @@ export function normalizeHubState(raw: unknown): HubStateNormalizeResult {
 }
 
 /**
+ * Three-way merge for a 409 or a fresh fetch. `base` is the document this
+ * device last synced, `local` its current edits, `remote` the server copy.
+ * Per entry: whatever this device changed since `base` wins (including a
+ * removal); everything else follows `remote`. Two devices editing different
+ * entries therefore never lose each other's work. The result is pruned
+ * (membership of removed projects) and capped, oldest first.
+ */
+export function mergeHubState(base: HubState, local: HubState, remote: HubState): HubState {
+  const projects = mergeById(base.projects, local.projects, remote.projects)
+  const ids = new Set(projects.map((p) => p.id))
+  const membership = Object.fromEntries(
+    Object.entries(mergeMap(base.membership, local.membership, remote.membership)).filter(
+      ([, projectId]) => ids.has(projectId),
+    ),
+  )
+  const merged: HubState = {
+    projects: projects.slice(-HUB_STATE_LIMITS.projects),
+    membership: capMap(membership, HUB_STATE_LIMITS.membership),
+    names: capMap(mergeMap(base.names, local.names, remote.names), HUB_STATE_LIMITS.names),
+    modes: capMap(mergeMap(base.modes, local.modes, remote.modes), HUB_STATE_LIMITS.modes),
+    archived: mergeList(base.archived, local.archived, remote.archived).slice(
+      -HUB_STATE_LIMITS.archived,
+    ),
+    pinned: mergeList(base.pinned, local.pinned, remote.pinned).slice(-HUB_STATE_LIMITS.pinned),
+    hidden: mergeList(base.hidden, local.hidden, remote.hidden).slice(-HUB_STATE_LIMITS.hidden),
+  }
+  const defaultProjectId = pick(
+    base.defaultProjectId,
+    local.defaultProjectId,
+    remote.defaultProjectId,
+  )
+  if (defaultProjectId && ids.has(defaultProjectId)) merged.defaultProjectId = defaultProjectId
+  const lastSession = mergeLastSession(base.lastSession, local.lastSession, remote.lastSession)
+  if (lastSession) merged.lastSession = lastSession
+  return merged
+}
+
+function same(a: unknown, b: unknown): boolean {
+  return JSON.stringify(a) === JSON.stringify(b)
+}
+
+function pick<T>(base: T, local: T, remote: T): T {
+  return same(local, base) ? remote : local
+}
+
+function mergeMap<V>(
+  base: Record<string, V>,
+  local: Record<string, V>,
+  remote: Record<string, V>,
+): Record<string, V> {
+  const out: Record<string, V> = {}
+  // remote order first, then keys only this device added — keeps recency order
+  const keys = new Set([...Object.keys(remote), ...Object.keys(local)])
+  for (const key of keys) {
+    const value = pick(
+      Object.hasOwn(base, key) ? base[key] : undefined,
+      Object.hasOwn(local, key) ? local[key] : undefined,
+      Object.hasOwn(remote, key) ? remote[key] : undefined,
+    )
+    if (value !== undefined) out[key] = value
+  }
+  return out
+}
+
+function mergeList(base: string[], local: string[], remote: string[]): string[] {
+  const b = new Set(base)
+  const l = new Set(local)
+  const r = new Set(remote)
+  const keep = (key: string): boolean => (l.has(key) !== b.has(key) ? l.has(key) : r.has(key))
+  return [...new Set([...remote, ...local])].filter(keep)
+}
+
+function mergeById(base: HubProject[], local: HubProject[], remote: HubProject[]): HubProject[] {
+  const index = (list: HubProject[]) => new Map(list.map((p) => [p.id, p]))
+  const b = index(base)
+  const l = index(local)
+  const r = index(remote)
+  const out: HubProject[] = []
+  for (const id of new Set([...r.keys(), ...l.keys()])) {
+    const project = pick(b.get(id), l.get(id), r.get(id))
+    if (project) out.push(project)
+  }
+  return out
+}
+
+function mergeLastSession(
+  base: HubLastSession | undefined,
+  local: HubLastSession | undefined,
+  remote: HubLastSession | undefined,
+): HubLastSession | undefined {
+  if (same(local, base)) return remote
+  if (same(remote, base) || !remote) return local
+  if (!local) return remote
+  return local.at >= remote.at ? local : remote
+}
+
+function capMap<V>(map: Record<string, V>, max: number): Record<string, V> {
+  const entries = Object.entries(map)
+  return entries.length > max ? Object.fromEntries(entries.slice(-max)) : map
+}
+
+/**
  * Move every per-session entry from `from` to `to` (a draft key adopted as
  * the harness id). An existing entry under `to` wins over the moved one.
  */
@@ -218,7 +320,7 @@ function normalizeProject(raw: unknown): HubProject | null {
     const agentId = text(d.agentId)
     const model = text(d.model)
     const node = text(d.node)
-    const directory = text(d.directory, HUB_STATE_LIMITS.directoryLength)
+    const directory = path(d.directory)
     if (agentId) defaults.agentId = agentId
     if (model) defaults.model = model
     if (typeof d.effort === 'string' && THINKING_LEVELS.includes(d.effort))
@@ -226,7 +328,7 @@ function normalizeProject(raw: unknown): HubProject | null {
     if (typeof d.harnessId === 'string' && (HARNESS_IDS as readonly string[]).includes(d.harnessId))
       defaults.harnessId = d.harnessId as HarnessId
     if (node) defaults.node = node
-    if (directory?.startsWith('/')) defaults.directory = directory
+    if (directory) defaults.directory = directory
     if (Object.keys(defaults).length > 0) project.defaults = defaults
   }
   return project
@@ -267,10 +369,20 @@ function isTimestamp(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0
 }
 
-function text(value: unknown, max: number = HUB_STATE_LIMITS.textLength): string | undefined {
+/** Trimmed, non-empty text clipped to the cap: a long name is shortened, not lost. */
+function text(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim().slice(0, HUB_STATE_LIMITS.textLength).trim()
+  return trimmed || undefined
+}
+
+/** A path is never clipped: a shortened directory is a different directory. */
+function path(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined
   const trimmed = value.trim()
-  return trimmed && trimmed.length <= max ? trimmed : undefined
+  return trimmed.startsWith('/') && trimmed.length <= HUB_STATE_LIMITS.directoryLength
+    ? trimmed
+    : undefined
 }
 
 function isPlainObject(raw: unknown): raw is Record<string, unknown> {

@@ -1,7 +1,8 @@
 /**
- * Spaces and which thread lives in which one. Client-only (plan decision 1):
- * nothing on the session record. A thread is in exactly one space or in
- * History (no membership entry).
+ * Spaces and which thread lives in which one. Nothing on the session record:
+ * localStorage is the first-paint cache, and `lib/hub-state-sync.ts` mirrors
+ * it to the den's per-user hub state so the phone shares the same projects.
+ * A thread is in exactly one space or in History (no membership entry).
  *
  * Membership keys are `${baseUrl}::${sessionKey}`, the same string
  * `storageKey` / the archive store use. Object key order is recency: placing

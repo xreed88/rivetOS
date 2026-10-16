@@ -20,6 +20,7 @@ const SETTINGS_KEYS = [
   'rivethub.agent.lastSession',
   'rivethub.keyBindings',
   'rivethub.preferences',
+  'rivethub.hubState.synced',
 ] as const
 
 /**

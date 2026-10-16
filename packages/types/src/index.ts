@@ -465,6 +465,7 @@ export {
   HUB_STATE_LIMITS,
   emptyHubState,
   hubSessionKey,
+  mergeHubState,
   normalizeHubState,
   parseHubSessionKey,
   rekeyHubState,
